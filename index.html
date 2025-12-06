@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SonicStream - Clay & Glass Audio Engine</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#6366f1',   // Indigo
+                        secondary: '#ec4899', // Pink
+                        dark: '#0f172a',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '1', boxShadow: '0 0 20px rgba(99, 102, 241, 0.5)' },
+                            '50%': { opacity: '.8', boxShadow: '0 0 10px rgba(99, 102, 241, 0.2)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #eef2ff;
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #4338ca);
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .perspective-container {
+            perspective: 1000px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+        }
+        
+        /* Modal Glass */
+        .glass-modal {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .clay-element {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                inset -4px -4px 10px rgba(0, 0, 0, 0.3),
+                inset 4px 4px 10px rgba(255, 255, 255, 0.1),
+                8px 8px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .clay-element:hover {
+            transform: translateY(-2px) translateZ(10px);
+            box-shadow: 
+                inset -4px -4px 10px rgba(0, 0, 0, 0.3),
+                inset 4px 4px 10px rgba(255, 255, 255, 0.1),
+                12px 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .clay-button-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            box-shadow: 
+                inset -3px -3px 6px rgba(0, 0, 0, 0.3),
+                inset 3px 3px 6px rgba(255, 255, 255, 0.2),
+                5px 5px 15px rgba(79, 70, 229, 0.5);
+        }
+
+        .clay-button-primary:active {
+            transform: scale(0.98);
+        }
+
+        .clay-button-active {
+            background: linear-gradient(135deg, #ec4899, #db2777); 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .clay-input {
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.4),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+            border: none;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+
+        .shape {
+            position: absolute;
+            filter: blur(60px);
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        #visualizer {
+            filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.6));
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center py-12 px-4 selection:bg-pink-500 selection:text-white relative">
+
+    <!-- Ambient 3D Background Elements -->
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+        <div class="shape bg-indigo-600 w-96 h-96 rounded-full top-[-10%] left-[-10%] animate-float"></div>
+        <div class="shape bg-fuchsia-600 w-[500px] h-[500px] rounded-full bottom-[-10%] right-[-10%] animate-float-delayed"></div>
+        <div class="shape bg-cyan-600 w-72 h-72 rounded-full top-[40%] left-[30%] animate-float opacity-30" style="animation-duration: 9s;"></div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-3xl relative z-10 perspective-container">
+        
+        <!-- Header -->
+        <header class="text-center mb-10 animate-fade-in-up">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl mb-6 animate-float transform hover:scale-105 transition-transform duration-500 cursor-pointer">
+                <i class="fa-solid fa-layer-group text-5xl text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"></i>
+            </div>
+            <h1 class="text-6xl font-black tracking-tighter mb-2 drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+                SONIC<span class="text-indigo-400">STREAM</span>
+            </h1>
+            <p class="text-white/70 font-medium text-xl tracking-wide">
+                Holographic Audio Interface
+            </p>
+        </header>
+
+        <!-- Main Card with Tilt Effect -->
+        <div id="mainCard" class="glass-card rounded-[3rem] p-8 sm:p-12 animate-fade-in-up mb-8" style="animation-delay: 0.1s;">
+            
+            <!-- Loading Overlay -->
+            <div id="loadingOverlay" class="absolute inset-0 bg-black/70 backdrop-blur-lg z-30 hidden flex-col items-center justify-center rounded-[3rem] transition-all duration-300">
+                <div class="relative w-20 h-20">
+                    <div class="absolute inset-0 border-t-4 border-indigo-500 rounded-full animate-spin"></div>
+                    <div class="absolute inset-2 border-r-4 border-pink-500 rounded-full animate-spin-slow"></div>
+                </div>
+                <p id="loadingText" class="text-white font-bold text-2xl mt-6 animate-pulse tracking-wider">INITIALIZING...</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex p-1.5 bg-black/30 rounded-2xl mb-10 relative clay-input">
+                <div id="tabIndicator" class="absolute top-1.5 bottom-1.5 left-1.5 w-[48%] bg-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 shadow-sm border border-white/10"></div>
+                
+                <button onclick="switchTab('url')" id="tab-url" class="flex-1 relative z-10 py-4 text-center font-bold text-white transition-colors text-lg">
+                    <i class="fa-solid fa-link mr-2"></i>URL
+                </button>
+                <button onclick="switchTab('github')" id="tab-github" class="flex-1 relative z-10 py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-lg">
+                    <i class="fa-brands fa-github mr-2"></i>GitHub
+                </button>
+            </div>
+
+            <!-- Input Form -->
+            <div class="space-y-8">
+                <div class="relative group transform transition-transform duration-300 hover:scale-[1.01]">
+                    <input type="text" id="urlInput" 
+                        class="w-full clay-input text-white rounded-2xl py-6 pl-14 pr-6 text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder-white/30 font-light"
+                        placeholder="Paste audio link here...">
+                    <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-bolt text-indigo-400 text-xl group-focus-within:text-white transition-colors"></i>
+                    </div>
+                </div>
+
+                <div id="githubHint" class="hidden text-sm text-indigo-200 bg-indigo-900/30 p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
+                    <i class="fa-brands fa-github text-2xl"></i>
+                    <div>
+                        <span class="font-bold block text-base">GitHub Direct Mode</span>
+                        Paste any repository file link. We'll extract the raw audio stream automatically.
+                    </div>
+                </div>
+
+                <button onclick="processAudio()" 
+                    class="w-full clay-button-primary clay-element py-6 text-xl font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 group">
+                    <span>Inject Stream</span>
+                    <i class="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
+                </button>
+            </div>
+            
+            <p id="errorMsg" class="mt-6 bg-red-500/10 border border-red-500/40 p-4 rounded-xl text-red-200 text-center hidden backdrop-blur-sm font-medium">
+                <i class="fa-solid fa-triangle-exclamation mr-2"></i> <span>Error message</span>
+            </p>
+        </div>
+
+        <!-- Player Section -->
+        <div id="playerSection" class="hidden transition-all duration-700 transform translate-y-12 opacity-0">
+            <div class="glass-card rounded-[3rem] p-8 sm:p-10 relative overflow-hidden">
+                
+                <!-- Header Info -->
+                <div class="flex items-start justify-between mb-8 relative z-10">
+                    <div class="overflow-hidden mr-4">
+                        <h2 class="text-3xl font-bold text-white truncate w-full drop-shadow-md leading-tight" id="trackTitle">Audio Track</h2>
+                        <div class="flex items-center gap-3 mt-2">
+                            <span class="px-3 py-1 rounded-lg bg-white/10 text-xs font-mono border border-white/5" id="fileSize">0.0 MB</span>
+                            <span class="px-3 py-1 rounded-lg bg-indigo-500/20 text-xs font-bold text-indigo-300 border border-indigo-500/20 tracking-wider">STEREO HQ</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <!-- Share Button -->
+                        <button onclick="openShareModal()" class="clay-element w-14 h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-indigo-300 transition-colors rounded-2xl tooltip-btn" title="Share & Embed">
+                            <i class="fa-solid fa-share-nodes text-2xl"></i>
+                        </button>
+                        <!-- Download Button -->
+                        <button onclick="downloadAudio()" class="clay-element w-14 h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-green-300 transition-colors rounded-2xl tooltip-btn" title="Download MP3">
+                            <i class="fa-solid fa-file-arrow-down text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visualizer Area -->
+                <div class="relative bg-black/40 rounded-[2rem] mb-10 border border-white/5 shadow-inner h-48 flex items-center justify-center overflow-hidden group">
+                    <canvas id="visualizer" class="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity duration-500"></canvas>
+                    <div class="absolute top-4 right-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] font-bold tracking-widest text-white/50">
+                        SPECTRUM
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="space-y-8 relative z-10">
+                    <div class="flex justify-center mb-4">
+                         <button id="bassBtn" onclick="toggleBass()" class="px-6 py-2 rounded-full border border-white/10 bg-white/5 text-sm font-bold text-white/60 hover:text-white transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-wave-square"></i> DEEP BASS <span id="bassStatus" class="w-2 h-2 rounded-full bg-gray-500 ml-1"></span>
+                         </button>
+                    </div>
+
+                    <div class="relative w-full group px-2">
+                        <input type="range" id="progressBar" value="0" step="0.1" 
+                            class="w-full h-3 rounded-lg appearance-none cursor-pointer z-20 relative"
+                            oninput="seekAudio()">
+                        <div class="absolute top-0 left-0 h-3 bg-white/10 w-full rounded-lg pointer-events-none"></div>
+                        <div id="progressFill" class="absolute top-0 left-0 h-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg pointer-events-none w-0 shadow-[0_0_15px_rgba(236,72,153,0.5)]"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-xs font-bold text-white/40 tracking-[0.2em] font-mono px-1">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-10">
+                        <button onclick="skip(-10)" class="w-16 h-16 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all clay-element">
+                            <i class="fa-solid fa-rotate-left text-xl"></i>
+                        </button>
+                        
+                        <button onclick="togglePlay()" id="playBtn" 
+                            class="w-24 h-24 rounded-full clay-button-primary flex items-center justify-center transform hover:scale-105 transition-all active:scale-95 shadow-2xl border-4 border-white/10">
+                            <i class="fa-solid fa-play text-4xl ml-2"></i>
+                        </button>
+                        
+                        <button onclick="skip(10)" class="w-16 h-16 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all clay-element">
+                            <i class="fa-solid fa-rotate-right text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="text-center mt-16 mb-8 text-white/30 text-xs font-mono tracking-widest">
+            <p>ENGINEERED FOR SONIC PERFECTION</p>
+        </div>
+
+    </main>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeShareModal()"></div>
+        <div class="relative w-full max-w-lg glass-modal rounded-3xl p-8 border border-white/20 shadow-2xl transform transition-all scale-95 opacity-0" id="shareModalContent">
+            
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes text-indigo-400"></i> Share Stream
+                </h3>
+                <button onclick="closeShareModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 hover:bg-white/20 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Direct Link -->
+                <div>
+                    <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Direct Link</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="shareLinkInput" readonly 
+                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-indigo-200 font-mono focus:outline-none focus:border-indigo-500/50">
+                        <button onclick="copyToClipboard('shareLinkInput')" class="clay-element w-12 flex items-center justify-center text-white hover:text-green-400 rounded-xl transition-colors">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Embed Code -->
+                <div>
+                    <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Embed Code (HTML)</label>
+                    <div class="relative">
+                        <textarea id="embedCodeInput" readonly rows="4"
+                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-indigo-200 font-mono focus:outline-none focus:border-indigo-500/50 resize-none"></textarea>
+                        <button onclick="copyToClipboard('embedCodeInput')" class="absolute top-2 right-2 clay-element w-8 h-8 flex items-center justify-center text-white hover:text-green-400 rounded-lg transition-colors">
+                            <i class="fa-regular fa-copy text-xs"></i>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-white/40 mt-2">Paste this code into any website to show the full player with visualizer.</p>
+                </div>
+            </div>
+
+            <div id="copyFeedback" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-4 py-2 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none font-bold">
+                COPIED TO CLIPBOARD
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Initialization & Share Logic ---
+        window.addEventListener('load', () => {
+            // Check for shared URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const audioParam = urlParams.get('audio');
+            const typeParam = urlParams.get('type');
+
+            if (audioParam) {
+                // Determine type
+                const decodedUrl = decodeURIComponent(audioParam);
+                if (typeParam === 'github' || decodedUrl.includes('github.com')) {
+                    switchTab('github');
+                } else {
+                    switchTab('url');
+                }
+                
+                // Set input and auto-process
+                document.getElementById('urlInput').value = decodedUrl;
+                // Add a small delay to ensure UI is ready
+                setTimeout(() => processAudio(), 500);
+            }
+        });
+
+        function openShareModal() {
+            const rawUrl = document.getElementById('urlInput').value.trim();
+            if (!rawUrl) return;
+
+            const modal = document.getElementById('shareModal');
+            const content = document.getElementById('shareModalContent');
+            const linkInput = document.getElementById('shareLinkInput');
+            const embedInput = document.getElementById('embedCodeInput');
+
+            // Construct Share URL
+            // Uses current window location (origin + pathname)
+            const baseUrl = window.location.origin + window.location.pathname;
+            const encodedAudio = encodeURIComponent(rawUrl);
+            const type = inputType; // 'url' or 'github'
+            
+            const shareUrl = `${baseUrl}?audio=${encodedAudio}&type=${type}`;
+            
+            // Construct Embed Code
+            // We set height to 700px to ensure the full visualizer and controls are visible
+            const embedCode = `<iframe src="${shareUrl}" width="100%" height="750" frameborder="0" allow="autoplay; encrypted-media" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);"></iframe>`;
+
+            linkInput.value = shareUrl;
+            embedInput.value = embedCode;
+
+            // Show Modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            // Small delay for transition
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeShareModal() {
+            const modal = document.getElementById('shareModal');
+            const content = document.getElementById('shareModalContent');
+
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            el.select();
+            el.setSelectionRange(0, 99999); // Mobile
+            
+            try {
+                // Use execCommand as it works better in restricted iframe environments
+                const successful = document.execCommand('copy');
+                if(successful) {
+                    showCopyFeedback();
+                } else {
+                    // Fallback to Clipboard API if execCommand fails (rare for text)
+                     if (navigator.clipboard) {
+                        navigator.clipboard.writeText(el.value).then(() => {
+                            showCopyFeedback();
+                        }).catch(err => {
+                             console.error('Failed to copy', err);
+                             alert("Could not auto-copy. Please manually copy the text.");
+                        });
+                     }
+                }
+            } catch (err) {
+                console.error('Oops, unable to copy', err);
+                alert("Could not auto-copy. Please manually copy the text.");
+            }
+        }
+
+        function showCopyFeedback() {
+            const fb = document.getElementById('copyFeedback');
+            fb.classList.remove('opacity-0');
+            setTimeout(() => {
+                fb.classList.add('opacity-0');
+            }, 2000);
+        }
+
+        // --- 3D Tilt Effect ---
+        const card = document.getElementById('mainCard');
+        const container = document.querySelector('main');
+
+        container.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 40;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
+            const clampX = Math.max(-10, Math.min(10, xAxis));
+            const clampY = Math.max(-10, Math.min(10, yAxis));
+            
+            card.style.transform = `rotateY(${clampX}deg) rotateX(${clampY}deg)`;
+        });
+
+        container.addEventListener('mouseleave', () => {
+            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        });
+
+        // --- Audio Logic ---
+        let audioContext;
+        let analyser;
+        let bassFilter;
+        let source;
+        let audioBuffer;
+        let isPlaying = false;
+        let isBassBoosted = false;
+        let startTime = 0;
+        let pausedAt = 0;
+        let animationId;
+        let currentBlobUrl = null;
+        let currentFileName = "audio.mp3";
+        let inputType = 'url';
+
+        const urlInput = document.getElementById('urlInput');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        const errorMsg = document.getElementById('errorMsg');
+        const playerSection = document.getElementById('playerSection');
+        const visualizerCanvas = document.getElementById('visualizer');
+        const canvasCtx = visualizerCanvas.getContext('2d');
+        const playBtn = document.getElementById('playBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const trackTitle = document.getElementById('trackTitle');
+        const bassBtn = document.getElementById('bassBtn');
+        const bassStatus = document.getElementById('bassStatus');
+        
+        function switchTab(type) {
+            inputType = type;
+            const tabUrl = document.getElementById('tab-url');
+            const tabGithub = document.getElementById('tab-github');
+            const indicator = document.getElementById('tabIndicator');
+            const githubHint = document.getElementById('githubHint');
+            const input = document.getElementById('urlInput');
+
+            if (type === 'url') {
+                tabUrl.classList.replace('text-white/50', 'text-white');
+                tabUrl.classList.add('font-bold');
+                tabGithub.classList.replace('text-white', 'text-white/50');
+                tabGithub.classList.remove('font-bold');
+                
+                indicator.style.transform = 'translateX(0)';
+                githubHint.classList.add('hidden');
+                input.placeholder = "Paste audio link here...";
+            } else {
+                tabGithub.classList.replace('text-white/50', 'text-white');
+                tabGithub.classList.add('font-bold');
+                tabUrl.classList.replace('text-white', 'text-white/50');
+                tabUrl.classList.remove('font-bold');
+                
+                indicator.style.transform = 'translateX(100%)';
+                githubHint.classList.remove('hidden');
+                input.placeholder = "https://github.com/user/repo/blob/main/audio.mp3";
+            }
+            errorMsg.classList.add('hidden');
+        }
+
+        async function processAudio() {
+            const rawUrl = urlInput.value.trim();
+            if (!rawUrl) {
+                showError("Please enter a URL first.");
+                return;
+            }
+
+            stopAudio();
+            errorMsg.classList.add('hidden');
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
+            
+            playerSection.classList.add('translate-y-12', 'opacity-0');
+            setTimeout(() => {
+                if(playerSection.classList.contains('translate-y-12')) playerSection.classList.add('hidden');
+            }, 500);
+
+            try {
+                let fetchUrl = rawUrl;
+                let fileName = "converted_audio.mp3";
+
+                if (inputType === 'github' || rawUrl.includes('github.com')) {
+                    loadingText.innerText = "ACCESSING GITHUB NODE...";
+                    fetchUrl = rawUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+                    fileName = rawUrl.split('/').pop();
+                } else {
+                    fileName = rawUrl.split('/').pop() || "audio.mp3";
+                }
+
+                currentFileName = fileName;
+                trackTitle.innerText = fileName;
+
+                loadingText.innerText = "BUFFERING STREAM...";
+                
+                const response = await fetch(fetchUrl);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const blob = await response.blob();
+                const size = (blob.size / (1024 * 1024)).toFixed(2);
+                document.getElementById('fileSize').innerText = `${size} MB`;
+
+                if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+                currentBlobUrl = URL.createObjectURL(blob);
+
+                loadingText.innerText = "ANALYZING WAVEFORM...";
+                await initAudioContext(blob);
+
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                
+                playerSection.classList.remove('hidden');
+                void playerSection.offsetWidth;
+                playerSection.classList.remove('translate-y-12', 'opacity-0');
+                
+                togglePlay();
+
+            } catch (err) {
+                console.error(err);
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                showError("Connection Failed. This is likely a CORS restriction. Try a GitHub Link.");
+            }
+        }
+
+        async function initAudioContext(blob) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.smoothingTimeConstant = 0.88;
+
+            bassFilter = audioContext.createBiquadFilter();
+            bassFilter.type = 'lowshelf';
+            bassFilter.frequency.value = 200;
+            bassFilter.gain.value = isBassBoosted ? 15 : 0;
+
+            const arrayBuffer = await blob.arrayBuffer();
+            audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            
+            durationEl.innerText = formatTime(audioBuffer.duration);
+            progressBar.max = audioBuffer.duration;
+            pausedAt = 0;
+            startTime = 0;
+        }
+
+        function playSource() {
+            source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(bassFilter);
+            bassFilter.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            source.start(0, pausedAt);
+            startTime = audioContext.currentTime - pausedAt;
+            
+            source.onended = () => {
+                if (isPlaying && (audioContext.currentTime - startTime) >= audioBuffer.duration - 0.1) {
+                    isPlaying = false;
+                    pausedAt = 0;
+                    updatePlayButton();
+                    cancelAnimationFrame(animationId);
+                }
+            };
+
+            drawMirrorVisualizer();
+        }
+
+        function togglePlay() {
+            if (!audioBuffer) return;
+
+            if (isPlaying) {
+                source.stop();
+                pausedAt = audioContext.currentTime - startTime;
+                isPlaying = false;
+                cancelAnimationFrame(animationId);
+            } else {
+                playSource();
+                isPlaying = true;
+                requestAnimationFrame(updateLoop);
+            }
+            updatePlayButton();
+        }
+
+        function toggleBass() {
+            isBassBoosted = !isBassBoosted;
+            if (bassFilter) {
+                const currentTime = audioContext.currentTime;
+                bassFilter.gain.linearRampToValueAtTime(isBassBoosted ? 15 : 0, currentTime + 0.2);
+            }
+            
+            if (isBassBoosted) {
+                bassBtn.classList.add('clay-button-active', 'text-white');
+                bassBtn.classList.remove('bg-white/5', 'text-white/60');
+                bassStatus.classList.remove('bg-gray-500');
+                bassStatus.classList.add('bg-green-400', 'shadow-[0_0_8px_#4ade80]');
+            } else {
+                bassBtn.classList.remove('clay-button-active', 'text-white');
+                bassBtn.classList.add('bg-white/5', 'text-white/60');
+                bassStatus.classList.add('bg-gray-500');
+                bassStatus.classList.remove('bg-green-400', 'shadow-[0_0_8px_#4ade80]');
+            }
+        }
+
+        function stopAudio() {
+            if (source) { try { source.stop(); } catch(e){} }
+            isPlaying = false;
+            pausedAt = 0;
+            cancelAnimationFrame(animationId);
+            updatePlayButton();
+        }
+
+        function seekAudio() {
+            const time = parseFloat(progressBar.value);
+            if (isPlaying) {
+                source.stop();
+                pausedAt = time;
+                playSource();
+            } else {
+                pausedAt = time;
+                updateProgressUI(time);
+            }
+        }
+
+        function skip(seconds) {
+            if (!audioBuffer) return;
+            let target = (isPlaying ? (audioContext.currentTime - startTime) : pausedAt) + seconds;
+            target = Math.max(0, Math.min(target, audioBuffer.duration));
+            
+            if (isPlaying) {
+                source.stop();
+                pausedAt = target;
+                playSource();
+            } else {
+                pausedAt = target;
+                updateProgressUI(target);
+            }
+        }
+
+        function updateLoop() {
+            if (!isPlaying) return;
+            const current = audioContext.currentTime - startTime;
+            updateProgressUI(current);
+            if (current < audioBuffer.duration) requestAnimationFrame(updateLoop);
+        }
+
+        function updateProgressUI(time) {
+            progressBar.value = time;
+            currentTimeEl.innerText = formatTime(time);
+            const pct = (time / audioBuffer.duration) * 100;
+            progressFill.style.width = `${pct}%`;
+        }
+
+        function updatePlayButton() {
+            playBtn.innerHTML = isPlaying 
+                ? '<i class="fa-solid fa-pause text-4xl"></i>' 
+                : '<i class="fa-solid fa-play text-4xl ml-2"></i>';
+        }
+
+        function drawMirrorVisualizer() {
+            if (!analyser) return;
+
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            visualizerCanvas.width = visualizerCanvas.offsetWidth;
+            visualizerCanvas.height = visualizerCanvas.offsetHeight;
+
+            const width = visualizerCanvas.width;
+            const height = visualizerCanvas.height;
+            const barWidth = (width / bufferLength) * 1.5;
+            const centerX = width / 2;
+
+            function renderFrame() {
+                if (!isPlaying) return;
+
+                animationId = requestAnimationFrame(renderFrame);
+                analyser.getByteFrequencyData(dataArray);
+
+                canvasCtx.clearRect(0, 0, width, height);
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = (dataArray[i] / 255) * height * 0.9;
+                    
+                    const gradient = canvasCtx.createLinearGradient(0, height/2 - barHeight/2, 0, height/2 + barHeight/2);
+                    gradient.addColorStop(0, '#818cf8'); 
+                    gradient.addColorStop(0.5, '#e879f9'); 
+                    gradient.addColorStop(1, '#818cf8');
+
+                    canvasCtx.fillStyle = gradient;
+                    
+                    const xR = centerX + (i * barWidth);
+                    const xL = centerX - ((i + 1) * barWidth);
+                    const y = (height - barHeight) / 2;
+                    
+                    canvasCtx.beginPath();
+                    canvasCtx.roundRect(xR, y, barWidth - 2, barHeight, 50);
+                    canvasCtx.fill();
+
+                    canvasCtx.beginPath();
+                    canvasCtx.roundRect(xL, y, barWidth - 2, barHeight, 50);
+                    canvasCtx.fill();
+                }
+            }
+            renderFrame();
+        }
+
+        function downloadAudio() {
+            if (!currentBlobUrl) return;
+            const a = document.createElement('a');
+            a.href = currentBlobUrl;
+            a.download = currentFileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        function showError(msg) {
+            errorMsg.querySelector('span').innerText = msg;
+            errorMsg.classList.remove('hidden');
+        }
+
+        window.addEventListener('resize', () => {
+             if(visualizerCanvas && isPlaying) {
+                 visualizerCanvas.width = visualizerCanvas.offsetWidth;
+                 visualizerCanvas.height = visualizerCanvas.offsetHeight;
+             }
+        });
+
+    </script>
+</body>
+</html>
