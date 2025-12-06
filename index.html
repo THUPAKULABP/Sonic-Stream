@@ -190,7 +190,7 @@
     <main class="w-full max-w-3xl relative z-10 perspective-container">
         
         <!-- Header -->
-        <header class="text-center mb-10 animate-fade-in-up">
+        <header id="mainHeader" class="text-center mb-10 animate-fade-in-up">
             <div class="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl mb-6 animate-float transform hover:scale-105 transition-transform duration-500 cursor-pointer">
                 <i class="fa-solid fa-layer-group text-5xl text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"></i>
             </div>
@@ -214,42 +214,45 @@
                 <p id="loadingText" class="text-white font-bold text-2xl mt-6 animate-pulse tracking-wider">INITIALIZING...</p>
             </div>
 
-            <!-- Tab Switcher -->
-            <div class="flex p-1.5 bg-black/30 rounded-2xl mb-10 relative clay-input">
-                <div id="tabIndicator" class="absolute top-1.5 bottom-1.5 left-1.5 w-[48%] bg-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 shadow-sm border border-white/10"></div>
-                
-                <button onclick="switchTab('url')" id="tab-url" class="flex-1 relative z-10 py-4 text-center font-bold text-white transition-colors text-lg">
-                    <i class="fa-solid fa-link mr-2"></i>URL
-                </button>
-                <button onclick="switchTab('github')" id="tab-github" class="flex-1 relative z-10 py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-lg">
-                    <i class="fa-brands fa-github mr-2"></i>GitHub
-                </button>
-            </div>
-
-            <!-- Input Form -->
-            <div class="space-y-8">
-                <div class="relative group transform transition-transform duration-300 hover:scale-[1.01]">
-                    <input type="text" id="urlInput" 
-                        class="w-full clay-input text-white rounded-2xl py-6 pl-14 pr-6 text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder-white/30 font-light"
-                        placeholder="Paste audio link here...">
-                    <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-bolt text-indigo-400 text-xl group-focus-within:text-white transition-colors"></i>
-                    </div>
+            <!-- Wrapper for Input UI to easily hide it in Embed Mode -->
+            <div id="inputUI">
+                <!-- Tab Switcher -->
+                <div class="flex p-1.5 bg-black/30 rounded-2xl mb-10 relative clay-input">
+                    <div id="tabIndicator" class="absolute top-1.5 bottom-1.5 left-1.5 w-[48%] bg-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 shadow-sm border border-white/10"></div>
+                    
+                    <button onclick="switchTab('url')" id="tab-url" class="flex-1 relative z-10 py-4 text-center font-bold text-white transition-colors text-lg">
+                        <i class="fa-solid fa-link mr-2"></i>URL
+                    </button>
+                    <button onclick="switchTab('github')" id="tab-github" class="flex-1 relative z-10 py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-lg">
+                        <i class="fa-brands fa-github mr-2"></i>GitHub
+                    </button>
                 </div>
 
-                <div id="githubHint" class="hidden text-sm text-indigo-200 bg-indigo-900/30 p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
-                    <i class="fa-brands fa-github text-2xl"></i>
-                    <div>
-                        <span class="font-bold block text-base">GitHub Direct Mode</span>
-                        Paste any repository file link. We'll extract the raw audio stream automatically.
+                <!-- Input Form -->
+                <div class="space-y-8">
+                    <div class="relative group transform transition-transform duration-300 hover:scale-[1.01]">
+                        <input type="text" id="urlInput" 
+                            class="w-full clay-input text-white rounded-2xl py-6 pl-14 pr-6 text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder-white/30 font-light"
+                            placeholder="Paste audio link here...">
+                        <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-bolt text-indigo-400 text-xl group-focus-within:text-white transition-colors"></i>
+                        </div>
                     </div>
-                </div>
 
-                <button onclick="processAudio()" 
-                    class="w-full clay-button-primary clay-element py-6 text-xl font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 group">
-                    <span>Inject Stream</span>
-                    <i class="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
-                </button>
+                    <div id="githubHint" class="hidden text-sm text-indigo-200 bg-indigo-900/30 p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
+                        <i class="fa-brands fa-github text-2xl"></i>
+                        <div>
+                            <span class="font-bold block text-base">GitHub Direct Mode</span>
+                            Paste any repository file link. We'll extract the raw audio stream automatically.
+                        </div>
+                    </div>
+
+                    <button onclick="processAudio()" 
+                        class="w-full clay-button-primary clay-element py-6 text-xl font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-4 group">
+                        <span>Inject Stream</span>
+                        <i class="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
+                    </button>
+                </div>
             </div>
             
             <p id="errorMsg" class="mt-6 bg-red-500/10 border border-red-500/40 p-4 rounded-xl text-red-200 text-center hidden backdrop-blur-sm font-medium">
@@ -331,7 +334,7 @@
             </div>
         </div>
 
-        <div class="text-center mt-16 mb-8 text-white/30 text-xs font-mono tracking-widest">
+        <div id="footerText" class="text-center mt-16 mb-8 text-white/30 text-xs font-mono tracking-widest">
             <p>ENGINEERED FOR SONIC PERFECTION</p>
         </div>
 
@@ -386,6 +389,8 @@
 
     <script>
         // --- Initialization & Share Logic ---
+        let isEmbedMode = false;
+
         window.addEventListener('load', () => {
             // Check for shared URL parameters
             const urlParams = new URLSearchParams(window.location.search);
@@ -393,6 +398,13 @@
             const typeParam = urlParams.get('type');
 
             if (audioParam) {
+                isEmbedMode = true;
+
+                // Hide Main UI Elements for Embed/Share Mode
+                document.getElementById('mainHeader').style.display = 'none';
+                document.getElementById('footerText').style.display = 'none';
+                document.getElementById('inputUI').style.display = 'none';
+                
                 // Determine type
                 const decodedUrl = decodeURIComponent(audioParam);
                 if (typeParam === 'github' || decodedUrl.includes('github.com')) {
@@ -617,6 +629,11 @@
 
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
+
+                // If in embed mode, hide the input container card completely to let player take center stage
+                if (isEmbedMode) {
+                    document.getElementById('mainCard').style.display = 'none';
+                }
                 
                 playerSection.classList.remove('hidden');
                 void playerSection.offsetWidth;
