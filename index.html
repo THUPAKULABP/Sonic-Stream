@@ -700,8 +700,10 @@
                 isPlaying = false;
                 cancelAnimationFrame(animationId);
             } else {
+                // FIX: Set isPlaying to true BEFORE calling playSource
+                // This ensures the visualizer loop inside playSource sees the correct state immediately.
+                isPlaying = true; 
                 playSource();
-                isPlaying = true;
                 requestAnimationFrame(updateLoop);
             }
             updatePlayButton();
