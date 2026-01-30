@@ -677,15 +677,15 @@
             if (isEmbedMode) {
                 document.getElementById('mainCard').style.display = 'none';
             }
-            
+
             playerSection.classList.remove('hidden');
             void playerSection.offsetWidth;
             playerSection.classList.remove('translate-y-12', 'opacity-0');
-            
+
             if (!isEmbedMode) {
                 togglePlay();
             } else {
-                playBtn.classList.add('animate-pulse'); 
+                playBtn.classList.add('animate-pulse');
             }
         }
 
@@ -700,10 +700,10 @@
             errorMsg.classList.add('hidden');
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.classList.add('flex');
-            
+
             playerSection.classList.add('translate-y-12', 'opacity-0');
             setTimeout(() => {
-                if(playerSection.classList.contains('translate-y-12')) playerSection.classList.add('hidden');
+                if (playerSection.classList.contains('translate-y-12')) playerSection.classList.add('hidden');
             }, 500);
 
             try {
@@ -715,33 +715,33 @@
                     loadingText.innerText = "ACCESSING GITHUB NODE...";
                     fetchUrl = rawUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
                     fileName = rawUrl.split('/').pop();
-                    
+
                     currentFileName = fileName;
                     trackTitle.innerText = fileName;
                     loadingText.innerText = "BUFFERING STREAM...";
-                    
+
                     const response = await fetch(fetchUrl);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const blob = await response.blob();
                     await handleAudioBlob(blob);
-                } 
-                
+                }
+
                 // --- GOOGLE DRIVE LOGIC ---
                 else if (inputType === 'drive' || rawUrl.includes('drive.google.com')) {
                     loadingText.innerText = "BYPASSING CORS LOCK...";
-                    
+
                     const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-                    
+
                     if (idMatch && idMatch[1]) {
                         const fileId = idMatch[1];
                         const driveLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
-                        
-                        // Proxy list
+
+                        // Proxy list - Prioritizing AllOrigins as it handles HTTPS better for some CDNs
                         const proxies = [
-                            `https://corsproxy.io/?${encodeURIComponent(driveLink)}`,
-                            `https://api.allorigins.win/raw?url=${encodeURIComponent(driveLink)}`
+                            `https://api.allorigins.win/raw?url=${encodeURIComponent(driveLink)}`,
+                            `https://corsproxy.io/?${encodeURIComponent(driveLink)}`
                         ];
-                        
+
                         fileName = "Google_Drive_Audio.mp3";
                         currentFileName = fileName;
                         trackTitle.innerText = fileName;
@@ -750,23 +750,30 @@
                         let lastError = null;
                         for (const proxyUrl of proxies) {
                             try {
+                                console.log(`Trying proxy: ${proxyUrl}`);
                                 const response = await fetch(proxyUrl);
-                                if (!response.ok) throw new Error(`Proxy failed with status ${response.status}`);
+                                if (!response.ok) throw new Error(`Node ${response.status}`);
+
                                 const blob = await response.blob();
+                                // Check if we got an HTML error page from Google instead of audio
+                                if (blob.type.includes('html') || blob.size < 5000) {
+                                    throw new Error("Access Denied or File too large for direct stream.");
+                                }
+
                                 await handleAudioBlob(blob);
-                                return; // Success!
+                                return;
                             } catch (e) {
                                 lastError = e;
-                                loadingText.innerText = "SWITCHING PROXY NODE...";
-                                console.warn("Proxy failed, trying next set...", e);
+                                console.warn("Node failed:", e);
+                                loadingText.innerText = "ROTATING PROXY...";
                             }
                         }
-                        throw lastError || new Error("All proxies failed.");
+                        throw lastError || new Error("All stream nodes are currently unavailable.");
                     } else {
                         throw new Error("Could not extract Google Drive File ID.");
                     }
                 }
-                
+
                 // --- STANDARD URL ---
                 else {
                     fileName = rawUrl.split('/').pop() || "audio.mp3";
@@ -781,15 +788,19 @@
                 }
 
             } catch (err) {
-                console.error(err);
+                console.error("SonicStream Error:", err);
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
-                
+
+                let friendlyMsg = err.message;
                 if (rawUrl.includes('drive.google.com')) {
-                    showError("Drive Error: Ensure the link is public. All proxy services are currently busy.");
-                } else {
-                    showError(`Connection Failed: ${err.message || 'CORS restriction'}. Try a GitHub Link.`);
+                    if (err.message.includes("Access Denied")) {
+                        friendlyMsg = "Drive Link Restricted. Use 'Anyone with the link' in Drive settings.";
+                    } else {
+                        friendlyMsg = "Drive Stream Error. Google is blocking the direct connection. Please ensure the file is shared publicly.";
+                    }
                 }
+                showError(friendlyMsg);
             }
         }
 
