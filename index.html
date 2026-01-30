@@ -582,8 +582,12 @@
         let audioContext;
         let analyser;
         let bassFilter;
-        let source;
+        let source; // For Buffer Mode
+        let audioElement; // For Direct Stream Mode
+        let mediaElementSource; // For connecting Direct Stream to Context
         let audioBuffer;
+
+        let playbackMode = 'buffer'; // 'buffer' or 'stream'
         let isPlaying = false;
         let isBassBoosted = false;
         let startTime = 0;
@@ -592,6 +596,7 @@
         let currentBlobUrl = null;
         let currentFileName = "audio.mp3";
         let inputType = 'url';
+        let isVisualizerActive = true;
 
         const urlInput = document.getElementById('urlInput');
         const loadingOverlay = document.getElementById('loadingOverlay');
@@ -657,36 +662,17 @@
             errorMsg.classList.add('hidden');
         }
 
-        async function handleAudioBlob(blob) {
-            const size = (blob.size / (1024 * 1024)).toFixed(2);
-            document.getElementById('fileSize').innerText = `${size} MB`;
-
-            if (blob.type.includes('html') || (blob.size < 2000 && blob.type === "")) {
-                throw new Error("The resource returned is not a valid audio file. It might be a login or error page.");
-            }
-
-            if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
-            currentBlobUrl = URL.createObjectURL(blob);
-
-            loadingText.innerText = "ANALYZING WAVEFORM...";
-            await initAudioContext(blob);
-
-            loadingOverlay.classList.add('hidden');
-            loadingOverlay.classList.remove('flex');
-
-            if (isEmbedMode) {
-                document.getElementById('mainCard').style.display = 'none';
-            }
-
-            playerSection.classList.remove('hidden');
-            void playerSection.offsetWidth;
-            playerSection.classList.remove('translate-y-12', 'opacity-0');
-
-            if (!isEmbedMode) {
-                togglePlay();
-            } else {
-                playBtn.classList.add('animate-pulse');
-            }
+        // Wrapper for fetch with timeout
+        async function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 5000 } = options;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            const response = await fetch(resource, {
+                ...options,
+                signal: controller.signal
+            });
+            clearTimeout(id);
+            return response;
         }
 
         async function processAudio() {
@@ -709,87 +695,72 @@
             try {
                 let fetchUrl = rawUrl;
                 let fileName = "converted_audio.mp3";
+                let directStreamFallback = rawUrl;
 
                 // --- GITHUB LOGIC ---
                 if (inputType === 'github' || (rawUrl.includes('github.com') && !rawUrl.includes('drive.google'))) {
                     loadingText.innerText = "ACCESSING GITHUB NODE...";
                     fetchUrl = rawUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
                     fileName = rawUrl.split('/').pop();
-
                     currentFileName = fileName;
                     trackTitle.innerText = fileName;
-                    loadingText.innerText = "BUFFERING STREAM...";
 
-                    const response = await fetch(fetchUrl);
+                    const response = await fetchWithTimeout(fetchUrl);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const blob = await response.blob();
                     await handleAudioBlob(blob);
                 }
 
-                // --- GOOGLE DRIVE LOGIC ---
+                // --- GOOGLE DRIVE LOGIC (HYBRID ENGINE) ---
                 else if (inputType === 'drive' || rawUrl.includes('drive.google.com')) {
-                    loadingText.innerText = "BYPASSING CORS LOCK...";
+                    loadingText.innerText = "CONNECTING TO DRIVE...";
 
                     const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
 
                     if (idMatch && idMatch[1]) {
                         const fileId = idMatch[1];
-
-                        // Try multiple delivery paths
                         const driveLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
                         const alternativeLink = `https://docs.google.com/uc?export=open&id=${fileId}`;
-
-                        const proxies = [
-                            `https://api.allorigins.win/raw?url=${encodeURIComponent(driveLink)}`,
-                            `https://corsproxy.io/?${encodeURIComponent(driveLink)}`,
-                            `https://api.allorigins.win/raw?url=${encodeURIComponent(alternativeLink)}`
-                        ];
 
                         fileName = "Google_Drive_Audio.mp3";
                         currentFileName = fileName;
                         trackTitle.innerText = fileName;
-                        loadingText.innerText = "INITIATING DRIVE STREAM...";
 
-                        let lastError = null;
+                        // We set the Fallback Direct URL for the "Stream Mode"
+                        directStreamFallback = driveLink;
+
+                        // Attempt High-Quality Proxy Fetch first
+                        loadingText.innerText = "OPTIMIZING STREAM...";
+                        const proxies = [
+                            `https://api.allorigins.win/raw?url=${encodeURIComponent(driveLink)}`,
+                            `https://corsproxy.io/?${encodeURIComponent(driveLink)}`
+                        ];
+
+                        let blobFound = false;
                         for (const proxyUrl of proxies) {
                             try {
-                                console.log(`Attempting node: ${proxyUrl}`);
-                                const response = await fetch(proxyUrl);
-
-                                if (!response.ok) throw new Error(`Node Response: ${response.status}`);
-
-                                const blob = await response.blob();
-
-                                // Validation: Google often sends a 200 OK with an HTML page if it's blocking
-                                if (blob.type.includes('html') || blob.size < 10000) {
-                                    // This is usually a 'Virus Scan' or 'Login' page
-                                    throw new Error("Target Blocked by Google Security.");
+                                console.log(`Checking HQ Node: ${proxyUrl}`);
+                                const response = await fetchWithTimeout(proxyUrl, { timeout: 4000 }); // 4s timeout per proxy
+                                if (response.ok) {
+                                    const blob = await response.blob();
+                                    if (!blob.type.includes('html') && blob.size > 5000) {
+                                        await handleAudioBlob(blob);
+                                        blobFound = true;
+                                        break;
+                                    }
                                 }
-
-                                await handleAudioBlob(blob);
-                                return;
-                            } catch (e) {
-                                lastError = e;
-                                console.warn("Stream path failed:", e);
-                                loadingText.innerText = "REROUTING CONNECTION...";
-                            }
+                            } catch (e) { console.warn("Proxy skipped:", e); }
                         }
 
-                        // FINAL FALLBACK: If proxied streaming fails, we create a direct blob bridge
-                        // This uses the browser's native capabilities to bypass some proxy limits
-                        loadingText.innerText = "FORCE CONNECTING...";
-                        try {
-                            const directLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
-                            const response = await fetch(directLink, { mode: 'no-cors' });
-                            // 'no-cors' won't let us read the content, but it tells us if the link exists
-                            // Since we can't read it, we show a helpful message
-                            throw new Error("Google is enforcing a private session. Please check if the file is shared as 'Anyone with the link'.");
-                        } catch (e) {
-                            throw lastError || new Error("Drive Stream failed. Try updating the sharing permissions to 'Public'.");
+                        if (!blobFound) {
+                            // If proxies fail, SWITCH TO DIRECT STREAM MODE
+                            console.warn("Proxies failed. Switching to Direct Stream Mode.");
+                            loadingText.innerText = "SWITCHING TO DIRECT STREAM...";
+                            await initDirectStream(directStreamFallback);
                         }
 
                     } else {
-                        throw new Error("Could not extract Google Drive File ID.");
+                        throw new Error("Invalid Drive URL");
                     }
                 }
 
@@ -800,48 +771,180 @@
                     trackTitle.innerText = fileName;
                     loadingText.innerText = "BUFFERING STREAM...";
 
-                    const response = await fetch(fetchUrl);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const blob = await response.blob();
-                    await handleAudioBlob(blob);
+                    try {
+                        const response = await fetchWithTimeout(fetchUrl);
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        const blob = await response.blob();
+                        await handleAudioBlob(blob);
+                    } catch (e) {
+                        // Fallback for standard URLs too
+                        console.warn("Fetch failed, trying direct stream", e);
+                        await initDirectStream(fetchUrl);
+                    }
                 }
 
             } catch (err) {
-                console.error("SonicStream Error:", err);
+                console.error("Critical Error:", err);
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
-
-                let friendlyMsg = err.message;
-                if (rawUrl.includes('drive.google.com')) {
-                    if (err.message.includes("Blocked") || err.message.includes("unavailable")) {
-                        friendlyMsg = "Google Drive security is blocking the direct stream. This usually happens if the file is too large or marked as private. Solution: Use a smaller audio file or ensure sharing is set to 'Public'.";
-                    }
-                }
-                showError(friendlyMsg);
+                showError("Unable to load audio. Please check the link permission.");
             }
         }
 
-        async function initAudioContext(blob) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 256;
-            analyser.smoothingTimeConstant = 0.88;
+        // --- MODE 1: BUFFER MODE (High Quality, Visualizer) ---
+        async function handleAudioBlob(blob) {
+            playbackMode = 'buffer';
 
-            bassFilter = audioContext.createBiquadFilter();
-            bassFilter.type = 'lowshelf';
-            bassFilter.frequency.value = 200;
-            bassFilter.gain.value = isBassBoosted ? 15 : 0;
+            const size = (blob.size / (1024 * 1024)).toFixed(2);
+            document.getElementById('fileSize').innerText = `${size} MB`;
+
+            if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+            currentBlobUrl = URL.createObjectURL(blob);
+
+            loadingText.innerText = "ANALYZING WAVEFORM...";
+
+            // Initialize Context if needed
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
             const arrayBuffer = await blob.arrayBuffer();
             audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+            setupAudioGraph(); // Re-setup nodes
 
             durationEl.innerText = formatTime(audioBuffer.duration);
             progressBar.max = audioBuffer.duration;
             pausedAt = 0;
             startTime = 0;
+
+            finishLoading();
         }
 
-        function playSource() {
+        // --- MODE 2: DIRECT STREAM MODE (Fallback, Reliable) ---
+        async function initDirectStream(url) {
+            playbackMode = 'stream';
+            document.getElementById('fileSize').innerText = "STREAM";
+
+            // Cleanup previous
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.src = "";
+            }
+
+            audioElement = new Audio();
+            audioElement.crossOrigin = "anonymous"; // Try to get CORS for visualizer
+            audioElement.src = url;
+
+            // setup events
+            audioElement.addEventListener('loadedmetadata', () => {
+                durationEl.innerText = formatTime(audioElement.duration);
+                progressBar.max = audioElement.duration;
+                finishLoading();
+            });
+
+            audioElement.addEventListener('error', (e) => {
+                showError("Stream failed. The file might be private.");
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+            });
+
+            audioElement.addEventListener('timeupdate', () => {
+                if (playbackMode === 'stream') updateProgressUI(audioElement.currentTime);
+            });
+
+            audioElement.addEventListener('ended', () => {
+                isPlaying = false;
+                updatePlayButton();
+            });
+
+            // Initialize Context for Visualizer (even in stream mode)
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            setupAudioGraph();
+
+            // Force load to trigger metadata
+            audioElement.load();
+        }
+
+        function setupAudioGraph() {
+            // Common node setup
+            if (!analyser) {
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                analyser.smoothingTimeConstant = 0.85;
+            }
+            if (!bassFilter) {
+                bassFilter = audioContext.createBiquadFilter();
+                bassFilter.type = 'lowshelf';
+                bassFilter.frequency.value = 200;
+                bassFilter.gain.value = isBassBoosted ? 15 : 0;
+            }
+
+            // Connect logic depends on mode during play, but we prep nodes here
+        }
+
+        function finishLoading() {
+            loadingOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('flex');
+
+            if (isEmbedMode) {
+                document.getElementById('mainCard').style.display = 'none';
+            }
+
+            playerSection.classList.remove('hidden');
+            void playerSection.offsetWidth;
+            playerSection.classList.remove('translate-y-12', 'opacity-0');
+
+            if (!isEmbedMode) {
+                togglePlay();
+            } else {
+                playBtn.classList.add('animate-pulse');
+            }
+        }
+
+        // --- UNIFIED CONTROLS ---
+
+        async function togglePlay() {
+            if (audioContext && audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+
+            if (isPlaying) {
+                // PAUSE
+                if (playbackMode === 'buffer') {
+                    if (source) { try { source.stop(); } catch (e) { } }
+                    pausedAt = audioContext.currentTime - startTime;
+                } else {
+                    audioElement.pause();
+                }
+
+                isPlaying = false;
+                cancelAnimationFrame(animationId);
+            } else {
+                // PLAY
+                isPlaying = true;
+
+                if (playbackMode === 'buffer') {
+                    playBufferSource();
+                } else {
+                    // Stream Mode Visualizer Hook
+                    if (!mediaElementSource && audioElement) {
+                        try {
+                            mediaElementSource = audioContext.createMediaElementSource(audioElement);
+                            mediaElementSource.connect(bassFilter);
+                            bassFilter.connect(analyser);
+                            analyser.connect(audioContext.destination);
+                        } catch (e) { console.warn("Visualizer restricted due to CORS", e); }
+                    }
+                    audioElement.play();
+                }
+
+                drawMirrorVisualizer();
+                requestAnimationFrame(updateLoop);
+                playBtn.classList.remove('animate-pulse');
+            }
+            updatePlayButton();
+        }
+
+        function playBufferSource() {
             source = audioContext.createBufferSource();
             source.buffer = audioBuffer;
             source.connect(bassFilter);
@@ -859,36 +962,98 @@
                     cancelAnimationFrame(animationId);
                 }
             };
-
-            drawMirrorVisualizer();
         }
 
-        async function togglePlay() {
-            if (!audioBuffer) return;
-
-            if (audioContext.state === 'suspended') {
-                await audioContext.resume();
-            }
-
-            if (isPlaying) {
-                source.stop();
-                pausedAt = audioContext.currentTime - startTime;
-                isPlaying = false;
-                cancelAnimationFrame(animationId);
+        function stopAudio() {
+            if (playbackMode === 'buffer') {
+                if (source) { try { source.stop(); } catch (e) { } }
             } else {
-                isPlaying = true;
-                playSource();
-                requestAnimationFrame(updateLoop);
-                playBtn.classList.remove('animate-pulse');
+                if (audioElement) { audioElement.pause(); audioElement.currentTime = 0; }
             }
+            isPlaying = false;
+            pausedAt = 0;
+            cancelAnimationFrame(animationId);
             updatePlayButton();
+        }
+
+        function seekAudio() {
+            const time = parseFloat(progressBar.value);
+            if (playbackMode === 'buffer') {
+                if (isPlaying) {
+                    source.stop();
+                    pausedAt = time;
+                    playBufferSource();
+                } else {
+                    pausedAt = time;
+                    updateProgressUI(time);
+                }
+            } else {
+                audioElement.currentTime = time;
+                updateProgressUI(time);
+            }
+        }
+
+        function skip(seconds) {
+            let current, duration;
+
+            if (playbackMode === 'buffer') {
+                if (!audioBuffer) return;
+                current = isPlaying ? (audioContext.currentTime - startTime) : pausedAt;
+                duration = audioBuffer.duration;
+            } else {
+                if (!audioElement) return;
+                current = audioElement.currentTime;
+                duration = audioElement.duration;
+            }
+
+            let target = current + seconds;
+            target = Math.max(0, Math.min(target, duration));
+
+            if (playbackMode === 'buffer') {
+                if (isPlaying) {
+                    source.stop();
+                    pausedAt = target;
+                    playBufferSource();
+                } else {
+                    pausedAt = target;
+                    updateProgressUI(target);
+                }
+            } else {
+                audioElement.currentTime = target;
+                if (!isPlaying) updateProgressUI(target); // If playing, timeupdate handles it
+            }
+        }
+
+        function updateLoop() {
+            if (!isPlaying) return;
+            if (playbackMode === 'buffer') {
+                const current = audioContext.currentTime - startTime;
+                updateProgressUI(current);
+                if (current < audioBuffer.duration) requestAnimationFrame(updateLoop);
+            } else {
+                // Stream mode updates via event listener, just keep loop for visualizer
+                requestAnimationFrame(updateLoop);
+            }
+        }
+
+        function updateProgressUI(time) {
+            progressBar.value = time;
+            currentTimeEl.innerText = formatTime(time);
+            const duration = playbackMode === 'buffer' ? audioBuffer.duration : (audioElement ? audioElement.duration : 1);
+            const pct = (time / duration) * 100;
+            progressFill.style.width = `${pct}%`;
         }
 
         function toggleBass() {
             isBassBoosted = !isBassBoosted;
             if (bassFilter) {
                 const currentTime = audioContext.currentTime;
-                bassFilter.gain.linearRampToValueAtTime(isBassBoosted ? 15 : 0, currentTime + 0.2);
+                // Safe ramp
+                try {
+                    bassFilter.gain.linearRampToValueAtTime(isBassBoosted ? 15 : 0, currentTime + 0.2);
+                } catch (e) {
+                    bassFilter.gain.value = isBassBoosted ? 15 : 0;
+                }
             }
 
             if (isBassBoosted) {
@@ -902,55 +1067,6 @@
                 bassStatus.classList.add('bg-gray-500');
                 bassStatus.classList.remove('bg-green-400', 'shadow-[0_0_8px_#4ade80]');
             }
-        }
-
-        function stopAudio() {
-            if (source) { try { source.stop(); } catch (e) { } }
-            isPlaying = false;
-            pausedAt = 0;
-            cancelAnimationFrame(animationId);
-            updatePlayButton();
-        }
-
-        function seekAudio() {
-            const time = parseFloat(progressBar.value);
-            if (isPlaying) {
-                source.stop();
-                pausedAt = time;
-                playSource();
-            } else {
-                pausedAt = time;
-                updateProgressUI(time);
-            }
-        }
-
-        function skip(seconds) {
-            if (!audioBuffer) return;
-            let target = (isPlaying ? (audioContext.currentTime - startTime) : pausedAt) + seconds;
-            target = Math.max(0, Math.min(target, audioBuffer.duration));
-
-            if (isPlaying) {
-                source.stop();
-                pausedAt = target;
-                playSource();
-            } else {
-                pausedAt = target;
-                updateProgressUI(target);
-            }
-        }
-
-        function updateLoop() {
-            if (!isPlaying) return;
-            const current = audioContext.currentTime - startTime;
-            updateProgressUI(current);
-            if (current < audioBuffer.duration) requestAnimationFrame(updateLoop);
-        }
-
-        function updateProgressUI(time) {
-            progressBar.value = time;
-            currentTimeEl.innerText = formatTime(time);
-            const pct = (time / audioBuffer.duration) * 100;
-            progressFill.style.width = `${pct}%`;
         }
 
         function updatePlayButton() {
@@ -973,11 +1089,24 @@
             const barWidth = (width / bufferLength) * 1.5;
             const centerX = width / 2;
 
+            // Auto-fallback for silent visualizer (Fake Mode)
+            let silentFrames = 0;
+
             function renderFrame() {
                 if (!isPlaying) return;
 
                 animationId = requestAnimationFrame(renderFrame);
                 analyser.getByteFrequencyData(dataArray);
+
+                // Check for silence (fake visualizer logic)
+                let sum = 0;
+                for (let k = 0; k < 10; k++) sum += dataArray[k];
+                if (sum === 0 && playbackMode === 'stream') {
+                    // Generate fake data for "Radio Mode" look
+                    for (let i = 0; i < bufferLength; i++) {
+                        dataArray[i] = Math.max(10, Math.random() * 100 * (1 - i / bufferLength));
+                    }
+                }
 
                 canvasCtx.clearRect(0, 0, width, height);
 
@@ -1008,16 +1137,20 @@
         }
 
         function downloadAudio() {
-            if (!currentBlobUrl) return;
-            const a = document.createElement('a');
-            a.href = currentBlobUrl;
-            a.download = currentFileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            if (playbackMode === 'stream' && audioElement) {
+                window.open(audioElement.src, '_blank');
+            } else if (currentBlobUrl) {
+                const a = document.createElement('a');
+                a.href = currentBlobUrl;
+                a.download = currentFileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
         }
 
         function formatTime(s) {
+            if (!s || isNaN(s)) return "0:00";
             const m = Math.floor(s / 60);
             const sec = Math.floor(s % 60);
             return `${m}:${sec < 10 ? '0' : ''}${sec}`;
