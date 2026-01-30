@@ -303,6 +303,27 @@
             </p>
         </div>
 
+        <div id="driveIframeContainer"
+            class="hidden transition-all duration-700 transform translate-y-12 opacity-0 mb-6 md:mb-10 text-center animate-fade-in-up">
+            <div
+                class="glass-card rounded-[2rem] p-4 md:p-6 inline-block w-full max-w-2xl relative overflow-hidden bg-black/20">
+                <div
+                    class="mb-4 flex items-center justify-center gap-2 text-indigo-300 font-bold text-sm tracking-widest uppercase">
+                    <i class="fa-brands fa-google-drive"></i> Standard Player Active
+                </div>
+                <div
+                    class="relative w-full pb-[20%] min-h-[150px] bg-black/50 rounded-xl overflow-hidden shadow-inner border border-white/10">
+                    <iframe id="driveFrame" src="" allow="autoplay"
+                        class="absolute inset-0 w-full h-full border-0"></iframe>
+                </div>
+                <p class="mt-4 text-xs text-white/40 font-mono">
+                    Sonic Visualizer disabled due to Google Drive restrictions. <br>
+                    <a href="#" onclick="location.reload()" class="text-white hover:text-indigo-400 underline">Reload
+                        Engine</a>
+                </p>
+            </div>
+        </div>
+
         <div id="playerSection" class="hidden transition-all duration-700 transform translate-y-12 opacity-0">
             <div class="glass-card rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 relative overflow-hidden">
 
@@ -797,8 +818,42 @@
                 console.error("Critical Error:", err);
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
+
+                if (rawUrl.includes('drive.google.com')) {
+                    // IF ALL ELSE FAILS: Use the Iframe Method
+                    // This is guaranteed to works because it uses Google's own player
+                    // We extract the ID one last time just to be sure
+                    const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                    if (idMatch && idMatch[1]) {
+                        renderDriveIframe(idMatch[1]);
+                        return;
+                    }
+                }
+
                 showError("Unable to load audio. Please check the link permission.");
             }
+        }
+
+        function renderDriveIframe(fileId) {
+            // 1. Hide Input UI
+            document.getElementById('mainCard').style.display = 'none';
+            if (isEmbedMode) {
+                document.getElementById('mainHeader').style.display = 'none';
+                document.getElementById('footerText').style.display = 'none';
+            }
+
+            // 2. Show Iframe Container
+            const container = document.getElementById('driveIframeContainer');
+            const iframe = document.getElementById('driveFrame');
+
+            // Construct the Preview URL (Standard Google Player)
+            iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+
+            container.classList.remove('hidden');
+            // Trigger animation
+            setTimeout(() => {
+                container.classList.remove('translate-y-12', 'opacity-0');
+            }, 50);
         }
 
         // --- MODE 1: BUFFER MODE (High Quality, Visualizer) ---
