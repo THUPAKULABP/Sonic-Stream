@@ -719,44 +719,54 @@
 
                     if (idMatch && idMatch[1]) {
                         const fileId = idMatch[1];
-                        const driveLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
-                        const alternativeLink = `https://docs.google.com/uc?export=open&id=${fileId}`;
 
                         fileName = "Google_Drive_Audio.mp3";
                         currentFileName = fileName;
                         trackTitle.innerText = fileName;
 
-                        // We set the Fallback Direct URL for the "Stream Mode"
-                        directStreamFallback = driveLink;
-
-                        // Attempt High-Quality Proxy Fetch first
-                        loadingText.innerText = "OPTIMIZING STREAM...";
-                        const proxies = [
-                            `https://api.allorigins.win/raw?url=${encodeURIComponent(driveLink)}`,
-                            `https://corsproxy.io/?${encodeURIComponent(driveLink)}`
+                        // Google Drive Direct URLs with confirm parameter for large files
+                        const driveUrls = [
+                            `https://drive.google.com/uc?export=download&id=${fileId}&confirm=t`,
+                            `https://drive.google.com/uc?export=download&id=${fileId}`,
+                            `https://docs.google.com/uc?export=download&id=${fileId}&confirm=t`
                         ];
 
+                        // Try multiple proxy + URL combinations
+                        loadingText.innerText = "OPTIMIZING STREAM...";
                         let blobFound = false;
-                        for (const proxyUrl of proxies) {
-                            try {
-                                console.log(`Checking HQ Node: ${proxyUrl}`);
-                                const response = await fetchWithTimeout(proxyUrl, { timeout: 4000 }); // 4s timeout per proxy
-                                if (response.ok) {
-                                    const blob = await response.blob();
-                                    if (!blob.type.includes('html') && blob.size > 5000) {
-                                        await handleAudioBlob(blob);
-                                        blobFound = true;
-                                        break;
+
+                        for (const driveUrl of driveUrls) {
+                            if (blobFound) break;
+
+                            const proxies = [
+                                `https://api.allorigins.win/raw?url=${encodeURIComponent(driveUrl)}`,
+                                `https://corsproxy.io/?${encodeURIComponent(driveUrl)}`
+                            ];
+
+                            for (const proxyUrl of proxies) {
+                                try {
+                                    console.log(`Trying: ${proxyUrl}`);
+                                    const response = await fetchWithTimeout(proxyUrl, { timeout: 3500 });
+                                    if (response.ok) {
+                                        const blob = await response.blob();
+                                        if (!blob.type.includes('html') && blob.size > 5000) {
+                                            await handleAudioBlob(blob);
+                                            blobFound = true;
+                                            break;
+                                        }
                                     }
-                                }
-                            } catch (e) { console.warn("Proxy skipped:", e); }
+                                } catch (e) { console.warn("Path failed:", e); }
+                            }
                         }
 
                         if (!blobFound) {
-                            // If proxies fail, SWITCH TO DIRECT STREAM MODE
-                            console.warn("Proxies failed. Switching to Direct Stream Mode.");
-                            loadingText.innerText = "SWITCHING TO DIRECT STREAM...";
-                            await initDirectStream(directStreamFallback);
+                            // ULTIMATE FALLBACK: Try direct embedding approach
+                            console.warn("All proxies failed. Using embedded player fallback.");
+                            loadingText.innerText = "ACTIVATING EMBEDDED MODE...";
+
+                            // Use the Google Drive preview URL which bypasses download restrictions
+                            const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+                            await initEmbeddedDrivePlayer(fileId, embedUrl);
                         }
 
                     } else {
@@ -862,6 +872,88 @@
 
             // Force load to trigger metadata
             audioElement.load();
+        }
+
+        // --- MODE 3: EMBEDDED DRIVE PLAYER (Ultimate Fallback) ---
+        async function initEmbeddedDrivePlayer(fileId, embedUrl) {
+            playbackMode = 'stream';
+            document.getElementById('fileSize').innerText = "DRIVE";
+
+            // Cleanup previous
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.src = "";
+            }
+
+            // Google Drive has multiple direct download patterns
+            // For public files, we can construct direct streaming URLs
+            const directUrls = [
+                `https://drive.google.com/u/0/uc?id=${fileId}&export=download&confirm=t`,
+                `https://drive.usercontent.google.com/download?id=${fileId}&export=download&confirm=t`,
+                `https://drive.google.com/uc?id=${fileId}&export=download`
+            ];
+
+            audioElement = new Audio();
+            audioElement.crossOrigin = "anonymous";
+
+            // Try each direct URL pattern
+            let loadSuccess = false;
+            for (const url of directUrls) {
+                try {
+                    console.log(`Testing Drive URL: ${url}`);
+                    audioElement.src = url;
+
+                    // Setup events before loading
+                    const loadPromise = new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => reject(new Error('Timeout')), 5000);
+
+                        audioElement.addEventListener('loadedmetadata', () => {
+                            clearTimeout(timeout);
+                            resolve();
+                        }, { once: true });
+
+                        audioElement.addEventListener('error', () => {
+                            clearTimeout(timeout);
+                            reject(new Error('Load failed'));
+                        }, { once: true });
+                    });
+
+                    audioElement.load();
+                    await loadPromise;
+
+                    // If we get here, it loaded successfully
+                    loadSuccess = true;
+                    console.log('Drive URL loaded successfully!');
+
+                    // Setup remaining events
+                    audioElement.addEventListener('timeupdate', () => {
+                        if (playbackMode === 'stream') updateProgressUI(audioElement.currentTime);
+                    });
+
+                    audioElement.addEventListener('ended', () => {
+                        isPlaying = false;
+                        updatePlayButton();
+                    });
+
+                    durationEl.innerText = formatTime(audioElement.duration);
+                    progressBar.max = audioElement.duration;
+
+                    // Initialize Context for Visualizer
+                    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    setupAudioGraph();
+
+                    finishLoading();
+                    break; // Success!
+
+                } catch (e) {
+                    console.warn(`Drive URL failed: ${url}`, e);
+                    continue;
+                }
+            }
+
+            if (!loadSuccess) {
+                throw new Error("Google Drive is blocking this file. Please ensure it's shared as 'Anyone with the link' or try a smaller file.");
+            }
         }
 
         function setupAudioGraph() {
