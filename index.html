@@ -251,7 +251,7 @@
                         <i class="fa-brands fa-google-drive text-xl md:text-2xl text-green-400"></i>
                         <div>
                             <span class="font-bold block text-sm md:text-base text-green-300">Google Drive Mode</span>
-                            Paste a "Anyone with the link" sharing URL. We will auto-convert it to a direct audio stream.
+                            Paste a "Anyone with the link" URL. <b>We use a secure proxy</b> to decode the Google audio stream.
                         </div>
                     </div>
 
@@ -621,17 +621,22 @@
                     fileName = rawUrl.split('/').pop();
                 } 
                 
-                // --- GOOGLE DRIVE LOGIC ---
+                // --- GOOGLE DRIVE LOGIC (WITH CORS PROXY) ---
                 else if (inputType === 'drive' || rawUrl.includes('drive.google.com')) {
-                    loadingText.innerText = "EXTRACTING DRIVE ID...";
+                    loadingText.innerText = "BYPASSING CORS LOCK...";
                     
-                    // Regex to find the File ID between /d/ and /view or /preview
+                    // Regex to find the File ID
                     const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
                     
                     if (idMatch && idMatch[1]) {
                         const fileId = idMatch[1];
-                        // Convert to Google Drive Direct Export URL
-                        fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                        // 1. Create the direct Google download link
+                        const driveLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                        
+                        // 2. Wrap it in a CORS Proxy (CorsProxy.io)
+                        // This fixes the "Access Denied" for JavaScript/Audio Context
+                        fetchUrl = `https://corsproxy.io/?${encodeURIComponent(driveLink)}`;
+                        
                         fileName = "Google_Drive_Audio.mp3";
                     } else {
                         throw new Error("Could not extract Google Drive File ID.");
@@ -684,9 +689,8 @@
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
                 
-                // Custom error for Drive/CORS issues
                 if (rawUrl.includes('drive.google.com')) {
-                    showError("Access Denied. Ensure the Drive file is set to 'Anyone with the link' and allows downloading.");
+                    showError("Drive Error: Ensure the link is public. If it is, the Proxy service may be busy.");
                 } else {
                     showError("Connection Failed. This is likely a CORS restriction. Try a GitHub Link.");
                 }
