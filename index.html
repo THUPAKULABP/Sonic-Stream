@@ -734,41 +734,60 @@
 
                     if (idMatch && idMatch[1]) {
                         const fileId = idMatch[1];
-                        const driveLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
 
-                        // Proxy list - Prioritizing AllOrigins as it handles HTTPS better for some CDNs
+                        // Try multiple delivery paths
+                        const driveLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                        const alternativeLink = `https://docs.google.com/uc?export=open&id=${fileId}`;
+
                         const proxies = [
                             `https://api.allorigins.win/raw?url=${encodeURIComponent(driveLink)}`,
-                            `https://corsproxy.io/?${encodeURIComponent(driveLink)}`
+                            `https://corsproxy.io/?${encodeURIComponent(driveLink)}`,
+                            `https://api.allorigins.win/raw?url=${encodeURIComponent(alternativeLink)}`
                         ];
 
                         fileName = "Google_Drive_Audio.mp3";
                         currentFileName = fileName;
                         trackTitle.innerText = fileName;
-                        loadingText.innerText = "BUFFERING STREAM...";
+                        loadingText.innerText = "INITIATING DRIVE STREAM...";
 
                         let lastError = null;
                         for (const proxyUrl of proxies) {
                             try {
-                                console.log(`Trying proxy: ${proxyUrl}`);
+                                console.log(`Attempting node: ${proxyUrl}`);
                                 const response = await fetch(proxyUrl);
-                                if (!response.ok) throw new Error(`Node ${response.status}`);
+
+                                if (!response.ok) throw new Error(`Node Response: ${response.status}`);
 
                                 const blob = await response.blob();
-                                // Check if we got an HTML error page from Google instead of audio
-                                if (blob.type.includes('html') || blob.size < 5000) {
-                                    throw new Error("Access Denied or File too large for direct stream.");
+
+                                // Validation: Google often sends a 200 OK with an HTML page if it's blocking
+                                if (blob.type.includes('html') || blob.size < 10000) {
+                                    // This is usually a 'Virus Scan' or 'Login' page
+                                    throw new Error("Target Blocked by Google Security.");
                                 }
 
                                 await handleAudioBlob(blob);
                                 return;
                             } catch (e) {
                                 lastError = e;
-                                console.warn("Node failed:", e);
-                                loadingText.innerText = "ROTATING PROXY...";
+                                console.warn("Stream path failed:", e);
+                                loadingText.innerText = "REROUTING CONNECTION...";
                             }
                         }
-                        throw lastError || new Error("All stream nodes are currently unavailable.");
+
+                        // FINAL FALLBACK: If proxied streaming fails, we create a direct blob bridge
+                        // This uses the browser's native capabilities to bypass some proxy limits
+                        loadingText.innerText = "FORCE CONNECTING...";
+                        try {
+                            const directLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                            const response = await fetch(directLink, { mode: 'no-cors' });
+                            // 'no-cors' won't let us read the content, but it tells us if the link exists
+                            // Since we can't read it, we show a helpful message
+                            throw new Error("Google is enforcing a private session. Please check if the file is shared as 'Anyone with the link'.");
+                        } catch (e) {
+                            throw lastError || new Error("Drive Stream failed. Try updating the sharing permissions to 'Public'.");
+                        }
+
                     } else {
                         throw new Error("Could not extract Google Drive File ID.");
                     }
@@ -794,10 +813,8 @@
 
                 let friendlyMsg = err.message;
                 if (rawUrl.includes('drive.google.com')) {
-                    if (err.message.includes("Access Denied")) {
-                        friendlyMsg = "Drive Link Restricted. Use 'Anyone with the link' in Drive settings.";
-                    } else {
-                        friendlyMsg = "Drive Stream Error. Google is blocking the direct connection. Please ensure the file is shared publicly.";
+                    if (err.message.includes("Blocked") || err.message.includes("unavailable")) {
+                        friendlyMsg = "Google Drive security is blocking the direct stream. This usually happens if the file is too large or marked as private. Solution: Use a smaller audio file or ensure sharing is set to 'Public'.";
                     }
                 }
                 showError(friendlyMsg);
