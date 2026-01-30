@@ -732,64 +732,58 @@
                     await handleAudioBlob(blob);
                 }
 
-                // --- GOOGLE DRIVE LOGIC (HYBRID ENGINE) ---
+                // --- GOOGLE DRIVE LOGIC (TURBO ENGINE) ---
                 else if (inputType === 'drive' || rawUrl.includes('drive.google.com')) {
-                    loadingText.innerText = "CONNECTING TO DRIVE...";
-
                     const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
 
                     if (idMatch && idMatch[1]) {
                         const fileId = idMatch[1];
-
                         fileName = "Google_Drive_Audio.mp3";
                         currentFileName = fileName;
                         trackTitle.innerText = fileName;
 
-                        // Google Drive Direct URLs with confirm parameter for large files
-                        const driveUrls = [
-                            `https://drive.google.com/uc?export=download&id=${fileId}&confirm=t`,
-                            `https://drive.google.com/uc?export=download&id=${fileId}`,
-                            `https://docs.google.com/uc?export=download&id=${fileId}&confirm=t`
+                        loadingText.innerText = "TURBO MODE...";
+
+                        // ULTRA-FAST: Race all proxies simultaneously with 2s max wait
+                        const driveUrl = `https://drive.google.com/uc?export=download&id=${fileId}&confirm=t`;
+                        const proxies = [
+                            `https://api.allorigins.win/raw?url=${encodeURIComponent(driveUrl)}`,
+                            `https://corsproxy.io/?${encodeURIComponent(driveUrl)}`
                         ];
 
-                        // Try multiple proxy + URL combinations
-                        loadingText.innerText = "OPTIMIZING STREAM...";
-                        let blobFound = false;
+                        // Create a race between all proxies AND a timeout
+                        const proxyRace = proxies.map(async (proxyUrl) => {
+                            try {
+                                const controller = new AbortController();
+                                const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5 seconds max!
 
-                        for (const driveUrl of driveUrls) {
-                            if (blobFound) break;
+                                const response = await fetch(proxyUrl, { signal: controller.signal });
+                                clearTimeout(timeoutId);
 
-                            const proxies = [
-                                `https://api.allorigins.win/raw?url=${encodeURIComponent(driveUrl)}`,
-                                `https://corsproxy.io/?${encodeURIComponent(driveUrl)}`
-                            ];
+                                if (!response.ok) throw new Error('Bad response');
+                                const blob = await response.blob();
 
-                            for (const proxyUrl of proxies) {
-                                try {
-                                    console.log(`Trying: ${proxyUrl}`);
-                                    const response = await fetchWithTimeout(proxyUrl, { timeout: 3500 });
-                                    if (response.ok) {
-                                        const blob = await response.blob();
-                                        if (!blob.type.includes('html') && blob.size > 5000) {
-                                            await handleAudioBlob(blob);
-                                            blobFound = true;
-                                            break;
-                                        }
-                                    }
-                                } catch (e) { console.warn("Path failed:", e); }
+                                // Verify it's actually audio
+                                if (blob.type.includes('html') || blob.size < 5000) {
+                                    throw new Error('Not audio');
+                                }
+                                return blob;
+                            } catch (e) {
+                                return null; // This proxy failed
                             }
+                        });
+
+                        // Race all proxies - first to return valid blob wins
+                        const results = await Promise.all(proxyRace);
+                        const validBlob = results.find(blob => blob !== null);
+
+                        if (validBlob) {
+                            await handleAudioBlob(validBlob);
+                        } else {
+                            // INSTANT IFRAME FALLBACK - No more waiting!
+                            console.log("Turbo proxies failed. Activating Standard Player.");
+                            renderDriveIframe(fileId);
                         }
-
-                        if (!blobFound) {
-                            // ULTIMATE FALLBACK: Try direct embedding approach
-                            console.warn("All proxies failed. Using embedded player fallback.");
-                            loadingText.innerText = "ACTIVATING EMBEDDED MODE...";
-
-                            // Use the Google Drive preview URL which bypasses download restrictions
-                            const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
-                            await initEmbeddedDrivePlayer(fileId, embedUrl);
-                        }
-
                     } else {
                         throw new Error("Invalid Drive URL");
                     }
