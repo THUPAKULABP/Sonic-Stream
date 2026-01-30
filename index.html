@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SonicStream - Clay & Glass Audio Engine</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
@@ -187,17 +184,14 @@
 </head>
 <body class="flex flex-col items-center py-6 px-4 md:py-12 md:px-4 selection:bg-pink-500 selection:text-white relative">
 
-    <!-- Ambient 3D Background Elements -->
     <div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
         <div class="shape bg-indigo-600 w-64 h-64 md:w-96 md:h-96 rounded-full top-[-10%] left-[-10%] animate-float"></div>
         <div class="shape bg-fuchsia-600 w-80 h-80 md:w-[500px] md:h-[500px] rounded-full bottom-[-10%] right-[-10%] animate-float-delayed"></div>
         <div class="shape bg-cyan-600 w-48 h-48 md:w-72 md:h-72 rounded-full top-[40%] left-[30%] animate-float opacity-30" style="animation-duration: 9s;"></div>
     </div>
 
-    <!-- Main Container -->
     <main class="w-full max-w-3xl relative z-10 perspective-container">
         
-        <!-- Header -->
         <header id="mainHeader" class="text-center mb-6 md:mb-10 animate-fade-in-up">
             <div class="inline-flex items-center justify-center w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl mb-4 md:mb-6 animate-float cursor-pointer">
                 <i class="fa-solid fa-layer-group text-3xl md:text-5xl text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"></i>
@@ -210,10 +204,8 @@
             </p>
         </header>
 
-        <!-- Main Card with Tilt Effect (Desktop) -->
         <div id="mainCard" class="glass-card rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 animate-fade-in-up mb-4 md:mb-8" style="animation-delay: 0.1s;">
             
-            <!-- Loading Overlay -->
             <div id="loadingOverlay" class="absolute inset-0 bg-black/70 backdrop-blur-lg z-30 hidden flex-col items-center justify-center rounded-[2rem] md:rounded-[3rem] transition-all duration-300">
                 <div class="relative w-16 h-16 md:w-20 md:h-20">
                     <div class="absolute inset-0 border-t-4 border-indigo-500 rounded-full animate-spin"></div>
@@ -222,21 +214,21 @@
                 <p id="loadingText" class="text-white font-bold text-lg md:text-2xl mt-6 animate-pulse tracking-wider">INITIALIZING...</p>
             </div>
 
-            <!-- Wrapper for Input UI -->
             <div id="inputUI">
-                <!-- Tab Switcher -->
                 <div class="flex p-1.5 bg-black/30 rounded-2xl mb-6 md:mb-10 relative clay-input">
-                    <div id="tabIndicator" class="absolute top-1.5 bottom-1.5 left-1.5 w-[48%] bg-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 shadow-sm border border-white/10"></div>
+                    <div id="tabIndicator" class="absolute top-1.5 bottom-1.5 left-1.5 w-[32%] bg-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 shadow-sm border border-white/10"></div>
                     
-                    <button onclick="switchTab('url')" id="tab-url" class="flex-1 relative z-10 py-3 md:py-4 text-center font-bold text-white transition-colors text-base md:text-lg">
-                        <i class="fa-solid fa-link mr-2"></i>URL
+                    <button onclick="switchTab('url')" id="tab-url" class="flex-1 relative z-10 py-3 md:py-4 text-center font-bold text-white transition-colors text-xs md:text-base">
+                        <i class="fa-solid fa-link md:mr-2"></i><span class="hidden md:inline">URL</span>
                     </button>
-                    <button onclick="switchTab('github')" id="tab-github" class="flex-1 relative z-10 py-3 md:py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-base md:text-lg">
-                        <i class="fa-brands fa-github mr-2"></i>GitHub
+                    <button onclick="switchTab('github')" id="tab-github" class="flex-1 relative z-10 py-3 md:py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-xs md:text-base">
+                        <i class="fa-brands fa-github md:mr-2"></i><span class="hidden md:inline">GitHub</span>
+                    </button>
+                    <button onclick="switchTab('drive')" id="tab-drive" class="flex-1 relative z-10 py-3 md:py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-xs md:text-base">
+                        <i class="fa-brands fa-google-drive md:mr-2"></i><span class="hidden md:inline">Drive</span>
                     </button>
                 </div>
 
-                <!-- Input Form -->
                 <div class="space-y-6 md:space-y-8">
                     <div class="relative group transform transition-transform duration-300 md:hover:scale-[1.01]">
                         <input type="text" id="urlInput" 
@@ -255,6 +247,14 @@
                         </div>
                     </div>
 
+                    <div id="driveHint" class="hidden text-xs md:text-sm text-indigo-200 bg-indigo-900/30 p-4 md:p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
+                        <i class="fa-brands fa-google-drive text-xl md:text-2xl text-green-400"></i>
+                        <div>
+                            <span class="font-bold block text-sm md:text-base text-green-300">Google Drive Mode</span>
+                            Paste a "Anyone with the link" sharing URL. We will auto-convert it to a direct audio stream.
+                        </div>
+                    </div>
+
                     <button onclick="processAudio()" 
                         class="w-full clay-button-primary clay-element py-4 md:py-6 text-lg md:text-xl font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-3 md:gap-4 group active:scale-95 transition-transform">
                         <span>Inject Stream</span>
@@ -268,11 +268,9 @@
             </p>
         </div>
 
-        <!-- Player Section -->
         <div id="playerSection" class="hidden transition-all duration-700 transform translate-y-12 opacity-0">
             <div class="glass-card rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 relative overflow-hidden">
                 
-                <!-- Header Info -->
                 <div class="flex items-start justify-between mb-6 md:mb-8 relative z-10">
                     <div class="overflow-hidden mr-3">
                         <h2 class="text-xl md:text-3xl font-bold text-white truncate w-full drop-shadow-md leading-tight" id="trackTitle">Audio Track</h2>
@@ -283,18 +281,15 @@
                     </div>
                     
                     <div class="flex gap-2">
-                        <!-- Share Button -->
                         <button onclick="openShareModal()" class="clay-element w-10 h-10 md:w-14 md:h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-indigo-300 transition-colors rounded-xl md:rounded-2xl tooltip-btn" title="Share & Embed">
                             <i class="fa-solid fa-share-nodes text-lg md:text-2xl"></i>
                         </button>
-                        <!-- Download Button -->
                         <button onclick="downloadAudio()" class="clay-element w-10 h-10 md:w-14 md:h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-green-300 transition-colors rounded-xl md:rounded-2xl tooltip-btn" title="Download MP3">
                             <i class="fa-solid fa-file-arrow-down text-lg md:text-2xl"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Visualizer Area -->
                 <div class="relative bg-black/40 rounded-[1.5rem] md:rounded-[2rem] mb-6 md:mb-10 border border-white/5 shadow-inner h-32 md:h-48 flex items-center justify-center overflow-hidden group">
                     <canvas id="visualizer" class="w-full h-full opacity-80 md:group-hover:opacity-100 transition-opacity duration-500"></canvas>
                     <div class="absolute top-3 right-3 md:top-4 md:right-4 bg-black/50 backdrop-blur-md px-2 md:px-3 py-1 rounded-full border border-white/10 text-[8px] md:text-[10px] font-bold tracking-widest text-white/50">
@@ -302,7 +297,6 @@
                     </div>
                 </div>
 
-                <!-- Controls -->
                 <div class="space-y-6 md:space-y-8 relative z-10">
                     <div class="flex justify-center mb-2 md:mb-4">
                          <button id="bassBtn" onclick="toggleBass()" class="px-4 md:px-6 py-2 rounded-full border border-white/10 bg-white/5 text-xs md:text-sm font-bold text-white/60 hover:text-white transition-all flex items-center gap-2 active:scale-95">
@@ -348,7 +342,6 @@
 
     </main>
 
-    <!-- Share Modal -->
     <div id="shareModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeShareModal()"></div>
         <div class="relative w-full max-w-lg glass-modal rounded-[2rem] p-6 md:p-8 border border-white/20 shadow-2xl transform transition-all scale-95 opacity-0" id="shareModalContent">
@@ -363,7 +356,6 @@
             </div>
 
             <div class="space-y-6">
-                <!-- Direct Link -->
                 <div>
                     <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Direct Link</label>
                     <div class="flex gap-2">
@@ -375,7 +367,6 @@
                     </div>
                 </div>
 
-                <!-- Embed Code -->
                 <div>
                     <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Embed Code (HTML)</label>
                     <div class="relative">
@@ -417,6 +408,8 @@
                 const decodedUrl = decodeURIComponent(audioParam);
                 if (typeParam === 'github' || decodedUrl.includes('github.com')) {
                     switchTab('github');
+                } else if (typeParam === 'drive' || decodedUrl.includes('drive.google')) {
+                    switchTab('drive');
                 } else {
                     switchTab('url');
                 }
@@ -556,29 +549,47 @@
             inputType = type;
             const tabUrl = document.getElementById('tab-url');
             const tabGithub = document.getElementById('tab-github');
+            const tabDrive = document.getElementById('tab-drive');
+            
             const indicator = document.getElementById('tabIndicator');
             const githubHint = document.getElementById('githubHint');
+            const driveHint = document.getElementById('driveHint');
             const input = document.getElementById('urlInput');
+
+            // Reset all tabs
+            [tabUrl, tabGithub, tabDrive].forEach(t => {
+                t.classList.replace('text-white', 'text-white/50');
+                t.classList.remove('font-bold');
+            });
+
+            // Hide all hints
+            githubHint.classList.add('hidden');
+            driveHint.classList.add('hidden');
 
             if (type === 'url') {
                 tabUrl.classList.replace('text-white/50', 'text-white');
                 tabUrl.classList.add('font-bold');
-                tabGithub.classList.replace('text-white', 'text-white/50');
-                tabGithub.classList.remove('font-bold');
-                
                 indicator.style.transform = 'translateX(0)';
-                githubHint.classList.add('hidden');
+                indicator.style.width = '32%';
                 input.placeholder = "Paste audio link here...";
-            } else {
+                
+            } else if (type === 'github') {
                 tabGithub.classList.replace('text-white/50', 'text-white');
                 tabGithub.classList.add('font-bold');
-                tabUrl.classList.replace('text-white', 'text-white/50');
-                tabUrl.classList.remove('font-bold');
-                
-                indicator.style.transform = 'translateX(100%)';
+                indicator.style.transform = 'translateX(100%)'; 
+                indicator.style.width = '32%';
                 githubHint.classList.remove('hidden');
                 input.placeholder = "https://github.com/user/repo/blob/main/audio.mp3";
+                
+            } else if (type === 'drive') {
+                tabDrive.classList.replace('text-white/50', 'text-white');
+                tabDrive.classList.add('font-bold');
+                indicator.style.transform = 'translateX(200%)'; // Move to 3rd position
+                indicator.style.width = '32%';
+                driveHint.classList.remove('hidden');
+                input.placeholder = "https://drive.google.com/file/d/1234abcd.../view";
             }
+            
             errorMsg.classList.add('hidden');
         }
 
@@ -603,11 +614,32 @@
                 let fetchUrl = rawUrl;
                 let fileName = "converted_audio.mp3";
 
-                if (inputType === 'github' || rawUrl.includes('github.com')) {
+                // --- GITHUB LOGIC ---
+                if (inputType === 'github' || (rawUrl.includes('github.com') && !rawUrl.includes('drive.google'))) {
                     loadingText.innerText = "ACCESSING GITHUB NODE...";
                     fetchUrl = rawUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
                     fileName = rawUrl.split('/').pop();
-                } else {
+                } 
+                
+                // --- GOOGLE DRIVE LOGIC ---
+                else if (inputType === 'drive' || rawUrl.includes('drive.google.com')) {
+                    loadingText.innerText = "EXTRACTING DRIVE ID...";
+                    
+                    // Regex to find the File ID between /d/ and /view or /preview
+                    const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                    
+                    if (idMatch && idMatch[1]) {
+                        const fileId = idMatch[1];
+                        // Convert to Google Drive Direct Export URL
+                        fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                        fileName = "Google_Drive_Audio.mp3";
+                    } else {
+                        throw new Error("Could not extract Google Drive File ID.");
+                    }
+                }
+                
+                // --- STANDARD URL ---
+                else {
                     fileName = rawUrl.split('/').pop() || "audio.mp3";
                 }
 
@@ -616,6 +648,7 @@
 
                 loadingText.innerText = "BUFFERING STREAM...";
                 
+                // Fetch the resource
                 const response = await fetch(fetchUrl);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
@@ -650,7 +683,13 @@
                 console.error(err);
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
-                showError("Connection Failed. This is likely a CORS restriction. Try a GitHub Link.");
+                
+                // Custom error for Drive/CORS issues
+                if (rawUrl.includes('drive.google.com')) {
+                    showError("Access Denied. Ensure the Drive file is set to 'Anyone with the link' and allows downloading.");
+                } else {
+                    showError("Connection Failed. This is likely a CORS restriction. Try a GitHub Link.");
+                }
             }
         }
 
