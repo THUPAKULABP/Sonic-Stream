@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SonicStream - Clay & Glass Audio Engine</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
@@ -58,13 +60,22 @@
             color: white;
             overflow-x: hidden;
             overflow-y: auto;
-            -webkit-tap-highlight-color: transparent; /* Remove blue highlight on mobile tap */
+            -webkit-tap-highlight-color: transparent;
+            /* Remove blue highlight on mobile tap */
         }
 
         @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .perspective-container {
@@ -80,7 +91,7 @@
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
         }
-        
+
         /* Modal Glass */
         .glass-modal {
             background: rgba(15, 23, 42, 0.85);
@@ -93,18 +104,19 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 
+            box-shadow:
                 inset -4px -4px 10px rgba(0, 0, 0, 0.3),
                 inset 4px 4px 10px rgba(255, 255, 255, 0.1),
                 8px 8px 20px rgba(0, 0, 0, 0.2);
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        
+
         .clay-element:hover {
+
             /* Only apply lift on non-touch devices to avoid sticky hover states on mobile */
             @media (hover: hover) {
                 transform: translateY(-2px) translateZ(10px);
-                box-shadow: 
+                box-shadow:
                     inset -4px -4px 10px rgba(0, 0, 0, 0.3),
                     inset 4px 4px 10px rgba(255, 255, 255, 0.1),
                     12px 12px 24px rgba(0, 0, 0, 0.3);
@@ -118,7 +130,7 @@
         .clay-button-primary {
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: white;
-            box-shadow: 
+            box-shadow:
                 inset -3px -3px 6px rgba(0, 0, 0, 0.3),
                 inset 3px 3px 6px rgba(255, 255, 255, 0.2),
                 5px 5px 15px rgba(79, 70, 229, 0.5);
@@ -129,13 +141,13 @@
         }
 
         .clay-button-active {
-            background: linear-gradient(135deg, #ec4899, #db2777); 
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #ec4899, #db2777);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
         }
 
         .clay-input {
             background: rgba(0, 0, 0, 0.3);
-            box-shadow: 
+            box-shadow:
                 inset 4px 4px 8px rgba(0, 0, 0, 0.4),
                 inset -4px -4px 8px rgba(255, 255, 255, 0.05);
             border: none;
@@ -145,10 +157,11 @@
             -webkit-appearance: none;
             background: transparent;
         }
-        
+
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 24px; /* Larger thumb for mobile touch */
+            height: 24px;
+            /* Larger thumb for mobile touch */
             width: 24px;
             border-radius: 50%;
             background: #ffffff;
@@ -182,21 +195,29 @@
         }
     </style>
 </head>
+
 <body class="flex flex-col items-center py-6 px-4 md:py-12 md:px-4 selection:bg-pink-500 selection:text-white relative">
 
     <div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
-        <div class="shape bg-indigo-600 w-64 h-64 md:w-96 md:h-96 rounded-full top-[-10%] left-[-10%] animate-float"></div>
-        <div class="shape bg-fuchsia-600 w-80 h-80 md:w-[500px] md:h-[500px] rounded-full bottom-[-10%] right-[-10%] animate-float-delayed"></div>
-        <div class="shape bg-cyan-600 w-48 h-48 md:w-72 md:h-72 rounded-full top-[40%] left-[30%] animate-float opacity-30" style="animation-duration: 9s;"></div>
+        <div class="shape bg-indigo-600 w-64 h-64 md:w-96 md:h-96 rounded-full top-[-10%] left-[-10%] animate-float">
+        </div>
+        <div
+            class="shape bg-fuchsia-600 w-80 h-80 md:w-[500px] md:h-[500px] rounded-full bottom-[-10%] right-[-10%] animate-float-delayed">
+        </div>
+        <div class="shape bg-cyan-600 w-48 h-48 md:w-72 md:h-72 rounded-full top-[40%] left-[30%] animate-float opacity-30"
+            style="animation-duration: 9s;"></div>
     </div>
 
     <main class="w-full max-w-3xl relative z-10 perspective-container">
-        
+
         <header id="mainHeader" class="text-center mb-6 md:mb-10 animate-fade-in-up">
-            <div class="inline-flex items-center justify-center w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl mb-4 md:mb-6 animate-float cursor-pointer">
-                <i class="fa-solid fa-layer-group text-3xl md:text-5xl text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"></i>
+            <div
+                class="inline-flex items-center justify-center w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl mb-4 md:mb-6 animate-float cursor-pointer">
+                <i
+                    class="fa-solid fa-layer-group text-3xl md:text-5xl text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"></i>
             </div>
-            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-1 md:mb-2 drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+            <h1
+                class="text-4xl md:text-6xl font-black tracking-tighter mb-1 md:mb-2 drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                 SONIC<span class="text-indigo-400">STREAM</span>
             </h1>
             <p class="text-white/70 font-medium text-base md:text-xl tracking-wide">
@@ -204,42 +225,53 @@
             </p>
         </header>
 
-        <div id="mainCard" class="glass-card rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 animate-fade-in-up mb-4 md:mb-8" style="animation-delay: 0.1s;">
-            
-            <div id="loadingOverlay" class="absolute inset-0 bg-black/70 backdrop-blur-lg z-30 hidden flex-col items-center justify-center rounded-[2rem] md:rounded-[3rem] transition-all duration-300">
+        <div id="mainCard"
+            class="glass-card rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 animate-fade-in-up mb-4 md:mb-8"
+            style="animation-delay: 0.1s;">
+
+            <div id="loadingOverlay"
+                class="absolute inset-0 bg-black/70 backdrop-blur-lg z-30 hidden flex-col items-center justify-center rounded-[2rem] md:rounded-[3rem] transition-all duration-300">
                 <div class="relative w-16 h-16 md:w-20 md:h-20">
                     <div class="absolute inset-0 border-t-4 border-indigo-500 rounded-full animate-spin"></div>
                     <div class="absolute inset-2 border-r-4 border-pink-500 rounded-full animate-spin-slow"></div>
                 </div>
-                <p id="loadingText" class="text-white font-bold text-lg md:text-2xl mt-6 animate-pulse tracking-wider">INITIALIZING...</p>
+                <p id="loadingText" class="text-white font-bold text-lg md:text-2xl mt-6 animate-pulse tracking-wider">
+                    INITIALIZING...</p>
             </div>
 
             <div id="inputUI">
                 <div class="flex p-1.5 bg-black/30 rounded-2xl mb-6 md:mb-10 relative clay-input">
-                    <div id="tabIndicator" class="absolute top-1.5 bottom-1.5 left-1.5 w-[32%] bg-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 shadow-sm border border-white/10"></div>
-                    
-                    <button onclick="switchTab('url')" id="tab-url" class="flex-1 relative z-10 py-3 md:py-4 text-center font-bold text-white transition-colors text-xs md:text-base">
+                    <div id="tabIndicator"
+                        class="absolute top-1.5 bottom-1.5 left-1.5 w-[32%] bg-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 shadow-sm border border-white/10">
+                    </div>
+
+                    <button onclick="switchTab('url')" id="tab-url"
+                        class="flex-1 relative z-10 py-3 md:py-4 text-center font-bold text-white transition-colors text-xs md:text-base">
                         <i class="fa-solid fa-link md:mr-2"></i><span class="hidden md:inline">URL</span>
                     </button>
-                    <button onclick="switchTab('github')" id="tab-github" class="flex-1 relative z-10 py-3 md:py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-xs md:text-base">
+                    <button onclick="switchTab('github')" id="tab-github"
+                        class="flex-1 relative z-10 py-3 md:py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-xs md:text-base">
                         <i class="fa-brands fa-github md:mr-2"></i><span class="hidden md:inline">GitHub</span>
                     </button>
-                    <button onclick="switchTab('drive')" id="tab-drive" class="flex-1 relative z-10 py-3 md:py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-xs md:text-base">
+                    <button onclick="switchTab('drive')" id="tab-drive"
+                        class="flex-1 relative z-10 py-3 md:py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-xs md:text-base">
                         <i class="fa-brands fa-google-drive md:mr-2"></i><span class="hidden md:inline">Drive</span>
                     </button>
                 </div>
 
                 <div class="space-y-6 md:space-y-8">
                     <div class="relative group transform transition-transform duration-300 md:hover:scale-[1.01]">
-                        <input type="text" id="urlInput" 
+                        <input type="text" id="urlInput"
                             class="w-full clay-input text-white rounded-2xl py-4 md:py-6 pl-12 md:pl-14 pr-4 md:pr-6 text-base md:text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder-white/30 font-light"
                             placeholder="Paste audio link here...">
                         <div class="absolute inset-y-0 left-0 pl-4 md:pl-6 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-bolt text-indigo-400 text-lg md:text-xl group-focus-within:text-white transition-colors"></i>
+                            <i
+                                class="fa-solid fa-bolt text-indigo-400 text-lg md:text-xl group-focus-within:text-white transition-colors"></i>
                         </div>
                     </div>
 
-                    <div id="githubHint" class="hidden text-xs md:text-sm text-indigo-200 bg-indigo-900/30 p-4 md:p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
+                    <div id="githubHint"
+                        class="hidden text-xs md:text-sm text-indigo-200 bg-indigo-900/30 p-4 md:p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
                         <i class="fa-brands fa-github text-xl md:text-2xl"></i>
                         <div>
                             <span class="font-bold block text-sm md:text-base">GitHub Direct Mode</span>
@@ -247,87 +279,110 @@
                         </div>
                     </div>
 
-                    <div id="driveHint" class="hidden text-xs md:text-sm text-indigo-200 bg-indigo-900/30 p-4 md:p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
+                    <div id="driveHint"
+                        class="hidden text-xs md:text-sm text-indigo-200 bg-indigo-900/30 p-4 md:p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
                         <i class="fa-brands fa-google-drive text-xl md:text-2xl text-green-400"></i>
                         <div>
                             <span class="font-bold block text-sm md:text-base text-green-300">Google Drive Mode</span>
-                            Paste a "Anyone with the link" URL. <b>We use a secure proxy</b> to decode the Google audio stream.
+                            Paste a "Anyone with the link" URL. <b>We use a secure proxy</b> to decode the Google audio
+                            stream.
                         </div>
                     </div>
 
-                    <button onclick="processAudio()" 
+                    <button onclick="processAudio()"
                         class="w-full clay-button-primary clay-element py-4 md:py-6 text-lg md:text-xl font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-3 md:gap-4 group active:scale-95 transition-transform">
                         <span>Inject Stream</span>
                         <i class="fa-solid fa-arrow-right-long md:group-hover:translate-x-2 transition-transform"></i>
                     </button>
                 </div>
             </div>
-            
-            <p id="errorMsg" class="mt-4 md:mt-6 bg-red-500/10 border border-red-500/40 p-4 rounded-xl text-red-200 text-center hidden backdrop-blur-sm font-medium text-sm md:text-base">
+
+            <p id="errorMsg"
+                class="mt-4 md:mt-6 bg-red-500/10 border border-red-500/40 p-4 rounded-xl text-red-200 text-center hidden backdrop-blur-sm font-medium text-sm md:text-base">
                 <i class="fa-solid fa-triangle-exclamation mr-2"></i> <span>Error message</span>
             </p>
         </div>
 
         <div id="playerSection" class="hidden transition-all duration-700 transform translate-y-12 opacity-0">
             <div class="glass-card rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 relative overflow-hidden">
-                
+
                 <div class="flex items-start justify-between mb-6 md:mb-8 relative z-10">
                     <div class="overflow-hidden mr-3">
-                        <h2 class="text-xl md:text-3xl font-bold text-white truncate w-full drop-shadow-md leading-tight" id="trackTitle">Audio Track</h2>
+                        <h2 class="text-xl md:text-3xl font-bold text-white truncate w-full drop-shadow-md leading-tight"
+                            id="trackTitle">Audio Track</h2>
                         <div class="flex flex-wrap items-center gap-2 md:gap-3 mt-2">
-                            <span class="px-2 md:px-3 py-1 rounded-lg bg-white/10 text-[10px] md:text-xs font-mono border border-white/5" id="fileSize">0.0 MB</span>
-                            <span class="px-2 md:px-3 py-1 rounded-lg bg-indigo-500/20 text-[10px] md:text-xs font-bold text-indigo-300 border border-indigo-500/20 tracking-wider">STEREO HQ</span>
+                            <span
+                                class="px-2 md:px-3 py-1 rounded-lg bg-white/10 text-[10px] md:text-xs font-mono border border-white/5"
+                                id="fileSize">0.0 MB</span>
+                            <span
+                                class="px-2 md:px-3 py-1 rounded-lg bg-indigo-500/20 text-[10px] md:text-xs font-bold text-indigo-300 border border-indigo-500/20 tracking-wider">STEREO
+                                HQ</span>
                         </div>
                     </div>
-                    
+
                     <div class="flex gap-2">
-                        <button onclick="openShareModal()" class="clay-element w-10 h-10 md:w-14 md:h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-indigo-300 transition-colors rounded-xl md:rounded-2xl tooltip-btn" title="Share & Embed">
+                        <button onclick="openShareModal()"
+                            class="clay-element w-10 h-10 md:w-14 md:h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-indigo-300 transition-colors rounded-xl md:rounded-2xl tooltip-btn"
+                            title="Share & Embed">
                             <i class="fa-solid fa-share-nodes text-lg md:text-2xl"></i>
                         </button>
-                        <button onclick="downloadAudio()" class="clay-element w-10 h-10 md:w-14 md:h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-green-300 transition-colors rounded-xl md:rounded-2xl tooltip-btn" title="Download MP3">
+                        <button onclick="downloadAudio()"
+                            class="clay-element w-10 h-10 md:w-14 md:h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-green-300 transition-colors rounded-xl md:rounded-2xl tooltip-btn"
+                            title="Download MP3">
                             <i class="fa-solid fa-file-arrow-down text-lg md:text-2xl"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="relative bg-black/40 rounded-[1.5rem] md:rounded-[2rem] mb-6 md:mb-10 border border-white/5 shadow-inner h-32 md:h-48 flex items-center justify-center overflow-hidden group">
-                    <canvas id="visualizer" class="w-full h-full opacity-80 md:group-hover:opacity-100 transition-opacity duration-500"></canvas>
-                    <div class="absolute top-3 right-3 md:top-4 md:right-4 bg-black/50 backdrop-blur-md px-2 md:px-3 py-1 rounded-full border border-white/10 text-[8px] md:text-[10px] font-bold tracking-widest text-white/50">
+                <div
+                    class="relative bg-black/40 rounded-[1.5rem] md:rounded-[2rem] mb-6 md:mb-10 border border-white/5 shadow-inner h-32 md:h-48 flex items-center justify-center overflow-hidden group">
+                    <canvas id="visualizer"
+                        class="w-full h-full opacity-80 md:group-hover:opacity-100 transition-opacity duration-500"></canvas>
+                    <div
+                        class="absolute top-3 right-3 md:top-4 md:right-4 bg-black/50 backdrop-blur-md px-2 md:px-3 py-1 rounded-full border border-white/10 text-[8px] md:text-[10px] font-bold tracking-widest text-white/50">
                         SPECTRUM
                     </div>
                 </div>
 
                 <div class="space-y-6 md:space-y-8 relative z-10">
                     <div class="flex justify-center mb-2 md:mb-4">
-                         <button id="bassBtn" onclick="toggleBass()" class="px-4 md:px-6 py-2 rounded-full border border-white/10 bg-white/5 text-xs md:text-sm font-bold text-white/60 hover:text-white transition-all flex items-center gap-2 active:scale-95">
-                            <i class="fa-solid fa-wave-square"></i> DEEP BASS <span id="bassStatus" class="w-2 h-2 rounded-full bg-gray-500 ml-1"></span>
-                         </button>
+                        <button id="bassBtn" onclick="toggleBass()"
+                            class="px-4 md:px-6 py-2 rounded-full border border-white/10 bg-white/5 text-xs md:text-sm font-bold text-white/60 hover:text-white transition-all flex items-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-wave-square"></i> DEEP BASS <span id="bassStatus"
+                                class="w-2 h-2 rounded-full bg-gray-500 ml-1"></span>
+                        </button>
                     </div>
 
                     <div class="relative w-full group px-1 md:px-2">
-                        <input type="range" id="progressBar" value="0" step="0.1" 
+                        <input type="range" id="progressBar" value="0" step="0.1"
                             class="w-full h-2 md:h-3 rounded-lg appearance-none cursor-pointer z-20 relative"
                             oninput="seekAudio()">
-                        <div class="absolute top-0 left-0 h-2 md:h-3 bg-white/10 w-full rounded-lg pointer-events-none"></div>
-                        <div id="progressFill" class="absolute top-0 left-0 h-2 md:h-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg pointer-events-none w-0 shadow-[0_0_15px_rgba(236,72,153,0.5)]"></div>
+                        <div class="absolute top-0 left-0 h-2 md:h-3 bg-white/10 w-full rounded-lg pointer-events-none">
+                        </div>
+                        <div id="progressFill"
+                            class="absolute top-0 left-0 h-2 md:h-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg pointer-events-none w-0 shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                        </div>
                     </div>
-                    
-                    <div class="flex justify-between text-[10px] md:text-xs font-bold text-white/40 tracking-[0.2em] font-mono px-1">
+
+                    <div
+                        class="flex justify-between text-[10px] md:text-xs font-bold text-white/40 tracking-[0.2em] font-mono px-1">
                         <span id="currentTime">0:00</span>
                         <span id="duration">0:00</span>
                     </div>
 
                     <div class="flex items-center justify-center gap-6 md:gap-10">
-                        <button onclick="skip(-10)" class="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
+                        <button onclick="skip(-10)"
+                            class="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
                             <i class="fa-solid fa-rotate-left text-lg md:text-xl"></i>
                         </button>
-                        
-                        <button onclick="togglePlay()" id="playBtn" 
+
+                        <button onclick="togglePlay()" id="playBtn"
                             class="w-20 h-20 md:w-24 md:h-24 rounded-full clay-button-primary flex items-center justify-center transform hover:scale-105 transition-all active:scale-90 shadow-2xl border-4 border-white/10">
                             <i class="fa-solid fa-play text-3xl md:text-4xl ml-1 md:ml-2"></i>
                         </button>
-                        
-                        <button onclick="skip(10)" class="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
+
+                        <button onclick="skip(10)"
+                            class="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
                             <i class="fa-solid fa-rotate-right text-lg md:text-xl"></i>
                         </button>
                     </div>
@@ -336,7 +391,8 @@
             </div>
         </div>
 
-        <div id="footerText" class="text-center mt-10 md:mt-16 mb-6 md:mb-8 text-white/30 text-[10px] md:text-xs font-mono tracking-widest">
+        <div id="footerText"
+            class="text-center mt-10 md:mt-16 mb-6 md:mb-8 text-white/30 text-[10px] md:text-xs font-mono tracking-widest">
             <p>ENGINEERED FOR SONIC PERFECTION</p>
         </div>
 
@@ -344,43 +400,51 @@
 
     <div id="shareModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeShareModal()"></div>
-        <div class="relative w-full max-w-lg glass-modal rounded-[2rem] p-6 md:p-8 border border-white/20 shadow-2xl transform transition-all scale-95 opacity-0" id="shareModalContent">
-            
+        <div class="relative w-full max-w-lg glass-modal rounded-[2rem] p-6 md:p-8 border border-white/20 shadow-2xl transform transition-all scale-95 opacity-0"
+            id="shareModalContent">
+
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-share-nodes text-indigo-400"></i> Share Stream
                 </h3>
-                <button onclick="closeShareModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 hover:bg-white/20 hover:text-white transition-colors">
+                <button onclick="closeShareModal()"
+                    class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 hover:bg-white/20 hover:text-white transition-colors">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             <div class="space-y-6">
                 <div>
-                    <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Direct Link</label>
+                    <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Direct
+                        Link</label>
                     <div class="flex gap-2">
-                        <input type="text" id="shareLinkInput" readonly 
+                        <input type="text" id="shareLinkInput" readonly
                             class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs md:text-sm text-indigo-200 font-mono focus:outline-none focus:border-indigo-500/50">
-                        <button onclick="copyToClipboard('shareLinkInput')" class="clay-element w-10 md:w-12 flex items-center justify-center text-white hover:text-green-400 rounded-xl transition-colors">
+                        <button onclick="copyToClipboard('shareLinkInput')"
+                            class="clay-element w-10 md:w-12 flex items-center justify-center text-white hover:text-green-400 rounded-xl transition-colors">
                             <i class="fa-regular fa-copy"></i>
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Embed Code (HTML)</label>
+                    <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Embed Code
+                        (HTML)</label>
                     <div class="relative">
                         <textarea id="embedCodeInput" readonly rows="4"
                             class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] md:text-xs text-indigo-200 font-mono focus:outline-none focus:border-indigo-500/50 resize-none"></textarea>
-                        <button onclick="copyToClipboard('embedCodeInput')" class="absolute top-2 right-2 clay-element w-8 h-8 flex items-center justify-center text-white hover:text-green-400 rounded-lg transition-colors">
+                        <button onclick="copyToClipboard('embedCodeInput')"
+                            class="absolute top-2 right-2 clay-element w-8 h-8 flex items-center justify-center text-white hover:text-green-400 rounded-lg transition-colors">
                             <i class="fa-regular fa-copy text-xs"></i>
                         </button>
                     </div>
-                    <p class="text-[10px] text-white/40 mt-2">Paste this code into any website to show the full player with visualizer.</p>
+                    <p class="text-[10px] text-white/40 mt-2">Paste this code into any website to show the full player
+                        with visualizer.</p>
                 </div>
             </div>
 
-            <div id="copyFeedback" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-4 py-2 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none font-bold whitespace-nowrap">
+            <div id="copyFeedback"
+                class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-4 py-2 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none font-bold whitespace-nowrap">
                 COPIED TO CLIPBOARD
             </div>
         </div>
@@ -403,7 +467,7 @@
                 document.getElementById('mainHeader').style.display = 'none';
                 document.getElementById('footerText').style.display = 'none';
                 document.getElementById('inputUI').style.display = 'none';
-                
+
                 // Determine type
                 const decodedUrl = decodeURIComponent(audioParam);
                 if (typeParam === 'github' || decodedUrl.includes('github.com')) {
@@ -413,7 +477,7 @@
                 } else {
                     switchTab('url');
                 }
-                
+
                 // Set input and auto-process
                 document.getElementById('urlInput').value = decodedUrl;
                 // Add a small delay to ensure UI is ready
@@ -432,8 +496,8 @@
 
             const baseUrl = window.location.origin + window.location.pathname;
             const encodedAudio = encodeURIComponent(rawUrl);
-            const type = inputType; 
-            
+            const type = inputType;
+
             const shareUrl = `${baseUrl}?audio=${encodedAudio}&type=${type}`;
             const embedCode = `<iframe src="${shareUrl}" width="100%" height="750" frameborder="0" allow="autoplay; encrypted-media" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);"></iframe>`;
 
@@ -464,21 +528,21 @@
         function copyToClipboard(elementId) {
             const el = document.getElementById(elementId);
             el.select();
-            el.setSelectionRange(0, 99999); 
-            
+            el.setSelectionRange(0, 99999);
+
             try {
                 const successful = document.execCommand('copy');
-                if(successful) {
+                if (successful) {
                     showCopyFeedback();
                 } else {
-                     if (navigator.clipboard) {
+                    if (navigator.clipboard) {
                         navigator.clipboard.writeText(el.value).then(() => {
                             showCopyFeedback();
                         }).catch(err => {
-                             console.error('Failed to copy', err);
-                             alert("Could not auto-copy. Please manually copy the text.");
+                            console.error('Failed to copy', err);
+                            alert("Could not auto-copy. Please manually copy the text.");
                         });
-                     }
+                    }
                 }
             } catch (err) {
                 console.error('Oops, unable to copy', err);
@@ -505,7 +569,7 @@
                 const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
                 const clampX = Math.max(-10, Math.min(10, xAxis));
                 const clampY = Math.max(-10, Math.min(10, yAxis));
-                
+
                 card.style.transform = `rotateY(${clampX}deg) rotateX(${clampY}deg)`;
             });
 
@@ -544,13 +608,13 @@
         const trackTitle = document.getElementById('trackTitle');
         const bassBtn = document.getElementById('bassBtn');
         const bassStatus = document.getElementById('bassStatus');
-        
+
         function switchTab(type) {
             inputType = type;
             const tabUrl = document.getElementById('tab-url');
             const tabGithub = document.getElementById('tab-github');
             const tabDrive = document.getElementById('tab-drive');
-            
+
             const indicator = document.getElementById('tabIndicator');
             const githubHint = document.getElementById('githubHint');
             const driveHint = document.getElementById('driveHint');
@@ -572,15 +636,15 @@
                 indicator.style.transform = 'translateX(0)';
                 indicator.style.width = '32%';
                 input.placeholder = "Paste audio link here...";
-                
+
             } else if (type === 'github') {
                 tabGithub.classList.replace('text-white/50', 'text-white');
                 tabGithub.classList.add('font-bold');
-                indicator.style.transform = 'translateX(100%)'; 
+                indicator.style.transform = 'translateX(100%)';
                 indicator.style.width = '32%';
                 githubHint.classList.remove('hidden');
                 input.placeholder = "https://github.com/user/repo/blob/main/audio.mp3";
-                
+
             } else if (type === 'drive') {
                 tabDrive.classList.replace('text-white/50', 'text-white');
                 tabDrive.classList.add('font-bold');
@@ -589,8 +653,40 @@
                 driveHint.classList.remove('hidden');
                 input.placeholder = "https://drive.google.com/file/d/1234abcd.../view";
             }
-            
+
             errorMsg.classList.add('hidden');
+        }
+
+        async function handleAudioBlob(blob) {
+            const size = (blob.size / (1024 * 1024)).toFixed(2);
+            document.getElementById('fileSize').innerText = `${size} MB`;
+
+            if (blob.type.includes('html') || (blob.size < 2000 && blob.type === "")) {
+                throw new Error("The resource returned is not a valid audio file. It might be a login or error page.");
+            }
+
+            if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+            currentBlobUrl = URL.createObjectURL(blob);
+
+            loadingText.innerText = "ANALYZING WAVEFORM...";
+            await initAudioContext(blob);
+
+            loadingOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('flex');
+
+            if (isEmbedMode) {
+                document.getElementById('mainCard').style.display = 'none';
+            }
+            
+            playerSection.classList.remove('hidden');
+            void playerSection.offsetWidth;
+            playerSection.classList.remove('translate-y-12', 'opacity-0');
+            
+            if (!isEmbedMode) {
+                togglePlay();
+            } else {
+                playBtn.classList.add('animate-pulse'); 
+            }
         }
 
         async function processAudio() {
@@ -619,25 +715,53 @@
                     loadingText.innerText = "ACCESSING GITHUB NODE...";
                     fetchUrl = rawUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
                     fileName = rawUrl.split('/').pop();
+                    
+                    currentFileName = fileName;
+                    trackTitle.innerText = fileName;
+                    loadingText.innerText = "BUFFERING STREAM...";
+                    
+                    const response = await fetch(fetchUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const blob = await response.blob();
+                    await handleAudioBlob(blob);
                 } 
                 
-                // --- GOOGLE DRIVE LOGIC (WITH CORS PROXY) ---
+                // --- GOOGLE DRIVE LOGIC ---
                 else if (inputType === 'drive' || rawUrl.includes('drive.google.com')) {
                     loadingText.innerText = "BYPASSING CORS LOCK...";
                     
-                    // Regex to find the File ID
-                    const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                    const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
                     
                     if (idMatch && idMatch[1]) {
                         const fileId = idMatch[1];
-                        // 1. Create the direct Google download link
                         const driveLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
                         
-                        // 2. Wrap it in a CORS Proxy (CorsProxy.io)
-                        // This fixes the "Access Denied" for JavaScript/Audio Context
-                        fetchUrl = `https://corsproxy.io/?${encodeURIComponent(driveLink)}`;
+                        // Proxy list
+                        const proxies = [
+                            `https://corsproxy.io/?${encodeURIComponent(driveLink)}`,
+                            `https://api.allorigins.win/raw?url=${encodeURIComponent(driveLink)}`
+                        ];
                         
                         fileName = "Google_Drive_Audio.mp3";
+                        currentFileName = fileName;
+                        trackTitle.innerText = fileName;
+                        loadingText.innerText = "BUFFERING STREAM...";
+
+                        let lastError = null;
+                        for (const proxyUrl of proxies) {
+                            try {
+                                const response = await fetch(proxyUrl);
+                                if (!response.ok) throw new Error(`Proxy failed with status ${response.status}`);
+                                const blob = await response.blob();
+                                await handleAudioBlob(blob);
+                                return; // Success!
+                            } catch (e) {
+                                lastError = e;
+                                loadingText.innerText = "SWITCHING PROXY NODE...";
+                                console.warn("Proxy failed, trying next set...", e);
+                            }
+                        }
+                        throw lastError || new Error("All proxies failed.");
                     } else {
                         throw new Error("Could not extract Google Drive File ID.");
                     }
@@ -646,42 +770,14 @@
                 // --- STANDARD URL ---
                 else {
                     fileName = rawUrl.split('/').pop() || "audio.mp3";
-                }
+                    currentFileName = fileName;
+                    trackTitle.innerText = fileName;
+                    loadingText.innerText = "BUFFERING STREAM...";
 
-                currentFileName = fileName;
-                trackTitle.innerText = fileName;
-
-                loadingText.innerText = "BUFFERING STREAM...";
-                
-                // Fetch the resource
-                const response = await fetch(fetchUrl);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const blob = await response.blob();
-                const size = (blob.size / (1024 * 1024)).toFixed(2);
-                document.getElementById('fileSize').innerText = `${size} MB`;
-
-                if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
-                currentBlobUrl = URL.createObjectURL(blob);
-
-                loadingText.innerText = "ANALYZING WAVEFORM...";
-                await initAudioContext(blob);
-
-                loadingOverlay.classList.add('hidden');
-                loadingOverlay.classList.remove('flex');
-
-                if (isEmbedMode) {
-                    document.getElementById('mainCard').style.display = 'none';
-                }
-                
-                playerSection.classList.remove('hidden');
-                void playerSection.offsetWidth;
-                playerSection.classList.remove('translate-y-12', 'opacity-0');
-                
-                if (!isEmbedMode) {
-                    togglePlay();
-                } else {
-                    playBtn.classList.add('animate-pulse'); 
+                    const response = await fetch(fetchUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const blob = await response.blob();
+                    await handleAudioBlob(blob);
                 }
 
             } catch (err) {
@@ -690,9 +786,9 @@
                 loadingOverlay.classList.remove('flex');
                 
                 if (rawUrl.includes('drive.google.com')) {
-                    showError("Drive Error: Ensure the link is public. If it is, the Proxy service may be busy.");
+                    showError("Drive Error: Ensure the link is public. All proxy services are currently busy.");
                 } else {
-                    showError("Connection Failed. This is likely a CORS restriction. Try a GitHub Link.");
+                    showError(`Connection Failed: ${err.message || 'CORS restriction'}. Try a GitHub Link.`);
                 }
             }
         }
@@ -710,7 +806,7 @@
 
             const arrayBuffer = await blob.arrayBuffer();
             audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-            
+
             durationEl.innerText = formatTime(audioBuffer.duration);
             progressBar.max = audioBuffer.duration;
             pausedAt = 0;
@@ -723,10 +819,10 @@
             source.connect(bassFilter);
             bassFilter.connect(analyser);
             analyser.connect(audioContext.destination);
-            
+
             source.start(0, pausedAt);
             startTime = audioContext.currentTime - pausedAt;
-            
+
             source.onended = () => {
                 if (isPlaying && (audioContext.currentTime - startTime) >= audioBuffer.duration - 0.1) {
                     isPlaying = false;
@@ -766,7 +862,7 @@
                 const currentTime = audioContext.currentTime;
                 bassFilter.gain.linearRampToValueAtTime(isBassBoosted ? 15 : 0, currentTime + 0.2);
             }
-            
+
             if (isBassBoosted) {
                 bassBtn.classList.add('clay-button-active', 'text-white');
                 bassBtn.classList.remove('bg-white/5', 'text-white/60');
@@ -781,7 +877,7 @@
         }
 
         function stopAudio() {
-            if (source) { try { source.stop(); } catch(e){} }
+            if (source) { try { source.stop(); } catch (e) { } }
             isPlaying = false;
             pausedAt = 0;
             cancelAnimationFrame(animationId);
@@ -804,7 +900,7 @@
             if (!audioBuffer) return;
             let target = (isPlaying ? (audioContext.currentTime - startTime) : pausedAt) + seconds;
             target = Math.max(0, Math.min(target, audioBuffer.duration));
-            
+
             if (isPlaying) {
                 source.stop();
                 pausedAt = target;
@@ -830,8 +926,8 @@
         }
 
         function updatePlayButton() {
-            playBtn.innerHTML = isPlaying 
-                ? '<i class="fa-solid fa-pause text-2xl md:text-4xl"></i>' 
+            playBtn.innerHTML = isPlaying
+                ? '<i class="fa-solid fa-pause text-2xl md:text-4xl"></i>'
                 : '<i class="fa-solid fa-play text-2xl md:text-4xl ml-1 md:ml-2"></i>';
         }
 
@@ -840,7 +936,7 @@
 
             const bufferLength = analyser.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
-            
+
             visualizerCanvas.width = visualizerCanvas.offsetWidth;
             visualizerCanvas.height = visualizerCanvas.offsetHeight;
 
@@ -859,18 +955,18 @@
 
                 for (let i = 0; i < bufferLength; i++) {
                     const barHeight = (dataArray[i] / 255) * height * 0.9;
-                    
-                    const gradient = canvasCtx.createLinearGradient(0, height/2 - barHeight/2, 0, height/2 + barHeight/2);
-                    gradient.addColorStop(0, '#818cf8'); 
-                    gradient.addColorStop(0.5, '#e879f9'); 
+
+                    const gradient = canvasCtx.createLinearGradient(0, height / 2 - barHeight / 2, 0, height / 2 + barHeight / 2);
+                    gradient.addColorStop(0, '#818cf8');
+                    gradient.addColorStop(0.5, '#e879f9');
                     gradient.addColorStop(1, '#818cf8');
 
                     canvasCtx.fillStyle = gradient;
-                    
+
                     const xR = centerX + (i * barWidth);
                     const xL = centerX - ((i + 1) * barWidth);
                     const y = (height - barHeight) / 2;
-                    
+
                     canvasCtx.beginPath();
                     canvasCtx.roundRect(xR, y, barWidth - 2, barHeight, 50);
                     canvasCtx.fill();
@@ -905,12 +1001,13 @@
         }
 
         window.addEventListener('resize', () => {
-             if(visualizerCanvas && isPlaying) {
-                 visualizerCanvas.width = visualizerCanvas.offsetWidth;
-                 visualizerCanvas.height = visualizerCanvas.offsetHeight;
-             }
+            if (visualizerCanvas && isPlaying) {
+                visualizerCanvas.width = visualizerCanvas.offsetWidth;
+                visualizerCanvas.height = visualizerCanvas.offsetHeight;
+            }
         });
 
     </script>
 </body>
+
 </html>
