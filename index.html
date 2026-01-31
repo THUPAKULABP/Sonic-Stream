@@ -459,9 +459,16 @@
                     <i class="fa-brands fa-google-drive text-green-400"></i> Legacy Drive Player
                 </div>
                 <div
-                    class="relative w-full pb-[40%] md:pb-[25%] bg-black/60 rounded-[2rem] overflow-hidden shadow-3xl border border-white/10">
+                    class="relative w-full pb-[65%] md:pb-[30%] bg-black/60 rounded-[2rem] overflow-hidden shadow-3xl border border-white/10">
                     <iframe id="driveFrame" src="" allow="autoplay"
                         class="absolute inset-0 w-full h-full border-0 contrast-125 saturate-150"></iframe>
+
+                    <!-- Protect Overlay: Hides the Google Pop-out button -->
+                    <div class="absolute top-0 right-0 w-24 h-16 bg-transparent z-40 cursor-default"></div>
+                    <div
+                        class="absolute top-2 right-2 w-10 h-10 bg-black/80 backdrop-blur-md rounded-xl z-50 flex items-center justify-center border border-white/10 pointer-events-none">
+                        <i class="fa-solid fa-lock text-white/20 text-[10px]"></i>
+                    </div>
                 </div>
                 <div class="mt-8 flex flex-col items-center gap-4">
                     <p class="text-xs text-white/40 font-medium leading-relaxed">
@@ -541,32 +548,32 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-center gap-8 md:gap-12">
+                    <div class="flex items-center justify-center gap-4 md:gap-12">
                         <button onclick="skip(-10)"
-                            class="w-14 h-14 rounded-2xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
+                            class="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
                             <i class="fa-solid fa-backward-step text-xl"></i>
                         </button>
 
                         <button onclick="togglePlay()" id="playBtn"
-                            class="w-24 h-24 md:w-28 md:h-28 rounded-full clay-button-primary flex items-center justify-center transform hover:scale-105 transition-all active:scale-95 shadow-3xl border-8 border-white/5">
-                            <i class="fa-solid fa-play text-4xl md:text-5xl ml-2"></i>
+                            class="w-20 h-20 md:w-28 md:h-28 rounded-full clay-button-primary flex items-center justify-center transform hover:scale-105 transition-all active:scale-95 shadow-3xl border-8 border-white/5">
+                            <i class="fa-solid fa-play text-3xl md:text-5xl ml-1 md:ml-2"></i>
                         </button>
 
                         <button onclick="skip(10)"
-                            class="w-14 h-14 rounded-2xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
+                            class="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
                             <i class="fa-solid fa-forward-step text-xl"></i>
                         </button>
                     </div>
 
-                    <div class="flex justify-center gap-6 pt-4">
+                    <div class="flex flex-wrap justify-center gap-3 md:gap-6 pt-2 md:pt-4">
                         <button id="bassBtn" onclick="toggleBass()"
-                            class="px-6 py-2.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-black tracking-[0.2em] text-white/40 hover:text-white transition-all flex items-center gap-3 active:scale-95 uppercase">
-                            <i class="fa-solid fa-drum text-xs"></i> <span>Turbo Bass</span> <span id="bassStatus"
-                                class="w-2 h-2 rounded-full bg-white/20"></span>
+                            class="px-4 md:px-6 py-2 md:py-2.5 rounded-full border border-white/10 bg-white/5 text-[9px] md:text-[10px] font-black tracking-[0.2em] text-white/40 hover:text-white transition-all flex items-center gap-2 md:gap-3 active:scale-95 uppercase">
+                            <i class="fa-solid fa-drum text-[10px]"></i> <span>Bass</span> <span id="bassStatus"
+                                class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white/20"></span>
                         </button>
                         <button onclick="downloadAudio()"
-                            class="px-6 py-2.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-black tracking-[0.2em] text-white/40 hover:text-white transition-all flex items-center gap-3 active:scale-95 uppercase">
-                            <i class="fa-solid fa-cloud-arrow-down text-xs"></i> <span>Archive</span>
+                            class="px-4 md:px-6 py-2 md:py-2.5 rounded-full border border-white/10 bg-white/5 text-[9px] md:text-[10px] font-black tracking-[0.2em] text-white/40 hover:text-white transition-all flex items-center gap-2 md:gap-3 active:scale-95 uppercase">
+                            <i class="fa-solid fa-cloud-arrow-down text-[10px]"></i> <span>Save</span>
                         </button>
                     </div>
                 </div>
