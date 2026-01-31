@@ -339,6 +339,11 @@
                 <div class="theme-dot bg-amber-500" onclick="setTheme('sunset', this)" title="Sunset Gold"></div>
                 <div class="theme-dot bg-purple-600" onclick="setTheme('midnight', this)" title="Midnight Purple"></div>
             </div>
+            <button onclick="openShareModal()"
+                class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10 shadow-lg"
+                title="Share App">
+                <i class="fa-solid fa-share-nodes"></i>
+            </button>
         </div>
 
         <header id="mainHeader" class="text-center mb-8 md:mb-12 animate-fade-in-up">
@@ -658,10 +663,6 @@
                 document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
                 if (el) el.classList.add('active');
                 localStorage.setItem('sonic-theme', theme);
-
-                // Move player to corner effect
-                const container = document.querySelector('main');
-                container.classList.add('corner-mode');
             }
 
             // Initialize theme and particles
@@ -922,16 +923,13 @@
 
                     // --- GITHUB LOGIC ---
                     if (inputType === 'github' || (rawUrl.includes('github.com') && !rawUrl.includes('drive.google'))) {
-                        loadingText.innerText = "ACCESSING GITHUB NODE...";
+                        loadingText.innerText = "STREAMING FROM GITHUB...";
                         fetchUrl = rawUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
                         fileName = rawUrl.split('/').pop();
                         currentFileName = fileName;
                         trackTitle.innerText = fileName;
 
-                        const response = await fetchWithTimeout(fetchUrl);
-                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                        const blob = await response.blob();
-                        await handleAudioBlob(blob);
+                        await initDirectStream(fetchUrl);
                     }
 
                     // --- GOOGLE DRIVE LOGIC (TURBO ENGINE) ---
@@ -999,14 +997,13 @@
                         loadingText.innerText = "BUFFERING STREAM...";
 
                         try {
+                            await initDirectStream(fetchUrl);
+                        } catch (e) {
+                            showError("Streaming failed. Attempting buffer mode...");
                             const response = await fetchWithTimeout(fetchUrl);
                             if (!response.ok) throw new Error(`HTTP ${response.status}`);
                             const blob = await response.blob();
                             await handleAudioBlob(blob);
-                        } catch (e) {
-                            // Fallback for standard URLs too
-                            console.warn("Fetch failed, trying direct stream", e);
-                            await initDirectStream(fetchUrl);
                         }
                     }
 
@@ -1052,9 +1049,9 @@
                 }, 50);
             }
 
-            // --- MODE 1: BUFFER MODE (High Quality, Visualizer) ---
+            // --- MODE 1: BLOB STREAM MODE (Fastest for files) ---
             async function handleAudioBlob(blob) {
-                playbackMode = 'buffer';
+                playbackMode = 'stream'; // Switching to stream mode for instant playback
 
                 const size = (blob.size / (1024 * 1024)).toFixed(2);
                 document.getElementById('fileSize').innerText = `${size} MB`;
@@ -1062,22 +1059,10 @@
                 if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
                 currentBlobUrl = URL.createObjectURL(blob);
 
-                loadingText.innerText = "ANALYZING WAVEFORM...";
+                loadingText.innerText = "LINKING STREAM...";
 
-                // Initialize Context if needed
-                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-                const arrayBuffer = await blob.arrayBuffer();
-                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-                setupAudioGraph(); // Re-setup nodes
-
-                durationEl.innerText = formatTime(audioBuffer.duration);
-                progressBar.max = audioBuffer.duration;
-                pausedAt = 0;
-                startTime = 0;
-
-                finishLoading();
+                // Use the streamlined initDirectStream for blobs too
+                await initDirectStream(currentBlobUrl);
             }
 
             // --- MODE 2: DIRECT STREAM MODE (Fallback, Reliable) ---
