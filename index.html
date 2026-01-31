@@ -21,15 +21,16 @@
                         sans: ['Outfit', 'sans-serif'],
                     },
                     colors: {
-                        primary: '#6366f1',   // Indigo
-                        secondary: '#ec4899', // Pink
-                        dark: '#0f172a',
+                        primary: 'var(--primary)',
+                        secondary: 'var(--secondary)',
+                        dark: 'var(--dark)',
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
                         'float-delayed': 'float 6s ease-in-out 3s infinite',
                         'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 3s linear infinite',
                     },
                     keyframes: {
                         float: {
@@ -41,8 +42,8 @@
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         },
                         pulseGlow: {
-                            '0%, 100%': { opacity: '1', boxShadow: '0 0 20px rgba(99, 102, 241, 0.5)' },
-                            '50%': { opacity: '.8', boxShadow: '0 0 10px rgba(99, 102, 241, 0.2)' },
+                            '0%, 100%': { opacity: '1', boxShadow: '0 0 20px var(--primary-low)' },
+                            '50%': { opacity: '.8', boxShadow: '0 0 10px var(--primary-ultra-low)' },
                         }
                     }
                 }
@@ -51,9 +52,58 @@
     </script>
 
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-low: rgba(99, 102, 241, 0.5);
+            --primary-ultra-low: rgba(99, 102, 241, 0.2);
+            --secondary: #ec4899;
+            --dark: #0f172a;
+            --gradient-1: #0f172a;
+            --gradient-2: #1e1b4b;
+            --gradient-3: #312e81;
+            --gradient-4: #4338ca;
+            --canvas-filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.6));
+        }
+
+        .theme-emerald {
+            --primary: #10b981;
+            --primary-low: rgba(16, 185, 129, 0.5);
+            --primary-ultra-low: rgba(16, 185, 129, 0.2);
+            --secondary: #06b6d4;
+            --gradient-1: #064e3b;
+            --gradient-2: #065f46;
+            --gradient-3: #047857;
+            --gradient-4: #059669;
+            --canvas-filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.6));
+        }
+
+        .theme-sunset {
+            --primary: #f59e0b;
+            --primary-low: rgba(245, 158, 11, 0.5);
+            --primary-ultra-low: rgba(245, 158, 11, 0.2);
+            --secondary: #ef4444;
+            --gradient-1: #451a03;
+            --gradient-2: #78350f;
+            --gradient-3: #92400e;
+            --gradient-4: #b45309;
+            --canvas-filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.6));
+        }
+
+        .theme-midnight {
+            --primary: #a855f7;
+            --primary-low: rgba(168, 85, 247, 0.5);
+            --primary-ultra-low: rgba(168, 85, 247, 0.2);
+            --secondary: #6366f1;
+            --gradient-1: #1e1b4b;
+            --gradient-2: #312e81;
+            --gradient-3: #4c1d95;
+            --gradient-4: #5b21b6;
+            --canvas-filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
+        }
+
         body {
-            background-color: #eef2ff;
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #4338ca);
+            background-color: var(--dark);
+            background: linear-gradient(-45deg, var(--gradient-1), var(--gradient-2), var(--gradient-3), var(--gradient-4));
             background-size: 400% 400%;
             animation: gradientBG 20s ease infinite;
             min-height: 100vh;
@@ -61,7 +111,6 @@
             overflow-x: hidden;
             overflow-y: auto;
             -webkit-tap-highlight-color: transparent;
-            /* Remove blue highlight on mobile tap */
         }
 
         @keyframes gradientBG {
@@ -79,119 +128,163 @@
         }
 
         .perspective-container {
-            perspective: 1000px;
+            perspective: 1500px;
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
             transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.1s ease-out, border 0.3s ease;
         }
 
-        /* Modal Glass */
         .glass-modal {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .clay-element {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow:
                 inset -4px -4px 10px rgba(0, 0, 0, 0.3),
-                inset 4px 4px 10px rgba(255, 255, 255, 0.1),
-                8px 8px 20px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                inset 4px 4px 10px rgba(255, 255, 255, 0.05),
+                0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         .clay-element:hover {
-
-            /* Only apply lift on non-touch devices to avoid sticky hover states on mobile */
             @media (hover: hover) {
-                transform: translateY(-2px) translateZ(10px);
+                transform: translateY(-4px) scale(1.02);
+                background: rgba(255, 255, 255, 0.08);
                 box-shadow:
                     inset -4px -4px 10px rgba(0, 0, 0, 0.3),
-                    inset 4px 4px 10px rgba(255, 255, 255, 0.1),
-                    12px 12px 24px rgba(0, 0, 0, 0.3);
+                    inset 4px 4px 10px rgba(255, 255, 255, 0.05),
+                    0 20px 40px rgba(0, 0, 0, 0.4);
             }
         }
 
-        .clay-element:active {
-            transform: scale(0.96);
-        }
-
         .clay-button-primary {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
+            border: none;
             box-shadow:
                 inset -3px -3px 6px rgba(0, 0, 0, 0.3),
                 inset 3px 3px 6px rgba(255, 255, 255, 0.2),
-                5px 5px 15px rgba(79, 70, 229, 0.5);
-        }
-
-        .clay-button-primary:active {
-            transform: scale(0.98);
+                0 10px 20px var(--primary-low);
         }
 
         .clay-button-active {
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
         }
 
         .clay-input {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             box-shadow:
-                inset 4px 4px 8px rgba(0, 0, 0, 0.4),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.05);
-            border: none;
+                inset 4px 4px 12px rgba(0, 0, 0, 0.5),
+                inset -2px -2px 6px rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         input[type=range] {
             -webkit-appearance: none;
+            appearance: none;
             background: transparent;
         }
 
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 24px;
-            /* Larger thumb for mobile touch */
-            width: 24px;
+            height: 20px;
+            width: 20px;
             border-radius: 50%;
             background: #ffffff;
             cursor: pointer;
-            margin-top: -10px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
-            transition: transform 0.1s;
+            margin-top: -8px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 1);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid var(--primary);
         }
 
         input[type=range]::-webkit-slider-thumb:active {
-            transform: scale(1.3);
+            transform: scale(1.4);
         }
 
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
             height: 4px;
             cursor: pointer;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 2px;
         }
 
         .shape {
             position: absolute;
-            filter: blur(60px);
+            filter: blur(80px);
             z-index: -1;
-            opacity: 0.5;
+            opacity: 0.4;
+            mix-blend-mode: screen;
         }
 
         #visualizer {
-            filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.6));
+            filter: var(--canvas-filter);
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .music-card-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle, var(--primary-low) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .animated-gradient-text {
+            background: linear-gradient(to right, #fff, var(--primary), #fff);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .theme-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .theme-dot.active {
+            transform: scale(1.4);
+            border-color: white;
+            box-shadow: 0 0 10px white;
         }
     </style>
 </head>
@@ -210,18 +303,37 @@
 
     <main class="w-full max-w-3xl relative z-10 perspective-container">
 
-        <header id="mainHeader" class="text-center mb-6 md:mb-10 animate-fade-in-up">
+        <div class="flex justify-end mb-4 gap-3 animate-fade-in-up">
             <div
-                class="inline-flex items-center justify-center w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl mb-4 md:mb-6 animate-float cursor-pointer">
-                <i
-                    class="fa-solid fa-layer-group text-3xl md:text-5xl text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"></i>
+                class="bg-black/30 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-3 border border-white/10 shadow-lg">
+                <div class="theme-dot bg-indigo-500 active" onclick="setTheme('default', this)" title="Indigo Neon">
+                </div>
+                <div class="theme-dot bg-emerald-500" onclick="setTheme('emerald', this)" title="Emerald Aurora"></div>
+                <div class="theme-dot bg-amber-500" onclick="setTheme('sunset', this)" title="Sunset Gold"></div>
+                <div class="theme-dot bg-purple-600" onclick="setTheme('midnight', this)" title="Midnight Purple"></div>
             </div>
-            <h1
-                class="text-4xl md:text-6xl font-black tracking-tighter mb-1 md:mb-2 drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-                SONIC<span class="text-indigo-400">STREAM</span>
+            <button onclick="openShareModal()"
+                class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all border border-white/10 shadow-lg"
+                title="Share App">
+                <i class="fa-solid fa-share-nodes"></i>
+            </button>
+        </div>
+
+        <header id="mainHeader" class="text-center mb-8 md:mb-12 animate-fade-in-up">
+            <div
+                class="inline-flex items-center justify-center w-20 h-20 md:w-28 md:h-28 rounded-[2rem] md:rounded-[2.5rem] bg-white/5 backdrop-blur-xl border border-white/20 shadow-2xl mb-6 md:mb-8 animate-float cursor-pointer relative group">
+                <div
+                    class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-[inherit] blur-xl opacity-50 group-hover:opacity-100 transition-opacity">
+                </div>
+                <i
+                    class="fa-solid fa-layer-group text-4xl md:text-6xl text-white drop-shadow-[0_0_20px_var(--primary-low)] relative z-10"></i>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-2 md:mb-3 drop-shadow-2xl">
+                <span class="animated-gradient-text uppercase">Sonic</span><span
+                    class="text-white/40 font-light italic">Stream</span>
             </h1>
-            <p class="text-white/70 font-medium text-base md:text-xl tracking-wide">
-                Holographic Audio Interface
+            <p class="text-white/60 font-medium text-lg md:text-2xl tracking-[0.3em] uppercase opacity-80">
+                Premium Audio Engine
             </p>
         </header>
 
@@ -240,22 +352,23 @@
             </div>
 
             <div id="inputUI">
-                <div class="flex p-1.5 bg-black/30 rounded-2xl mb-6 md:mb-10 relative clay-input">
+                <div class="flex p-2 bg-black/40 rounded-2xl mb-8 md:mb-12 relative clay-input">
                     <div id="tabIndicator"
-                        class="absolute top-1.5 bottom-1.5 left-1.5 w-[32%] bg-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 shadow-sm border border-white/10">
+                        class="absolute top-2 bottom-2 left-2 w-[31%] bg-white/10 backdrop-blur-md rounded-xl transition-all duration-500 shadow-lg border border-white/20">
                     </div>
 
                     <button onclick="switchTab('url')" id="tab-url"
-                        class="flex-1 relative z-10 py-3 md:py-4 text-center font-bold text-white transition-colors text-xs md:text-base">
-                        <i class="fa-solid fa-link md:mr-2"></i><span class="hidden md:inline">URL</span>
+                        class="flex-1 relative z-10 py-3 md:py-5 text-center font-bold text-white transition-all text-xs md:text-base">
+                        <i class="fa-solid fa-link md:mr-2"></i><span class="hidden md:inline">Universal URL</span>
                     </button>
                     <button onclick="switchTab('github')" id="tab-github"
-                        class="flex-1 relative z-10 py-3 md:py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-xs md:text-base">
-                        <i class="fa-brands fa-github md:mr-2"></i><span class="hidden md:inline">GitHub</span>
+                        class="flex-1 relative z-10 py-3 md:py-5 text-center font-medium text-white/50 hover:text-white transition-all text-xs md:text-base">
+                        <i class="fa-brands fa-github md:mr-2"></i><span class="hidden md:inline">GitHub Raw</span>
                     </button>
                     <button onclick="switchTab('drive')" id="tab-drive"
-                        class="flex-1 relative z-10 py-3 md:py-4 text-center font-medium text-white/50 hover:text-white transition-colors text-xs md:text-base">
-                        <i class="fa-brands fa-google-drive md:mr-2"></i><span class="hidden md:inline">Drive</span>
+                        class="flex-1 relative z-10 py-3 md:py-5 text-center font-medium text-white/50 hover:text-white transition-all text-xs md:text-base">
+                        <i class="fa-brands fa-google-drive md:mr-2"></i><span class="hidden md:inline">Google
+                            Drive</span>
                     </button>
                 </div>
 
@@ -271,21 +384,28 @@
                     </div>
 
                     <div id="githubHint"
-                        class="hidden text-xs md:text-sm text-indigo-200 bg-indigo-900/30 p-4 md:p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
-                        <i class="fa-brands fa-github text-xl md:text-2xl"></i>
+                        class="hidden text-xs md:text-sm text-white/80 bg-white/5 p-6 md:p-8 rounded-[2rem] border border-white/10 flex items-center gap-6 animate-fade-in-up">
+                        <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-brands fa-github text-2xl md:text-3xl"></i>
+                        </div>
                         <div>
-                            <span class="font-bold block text-sm md:text-base">GitHub Direct Mode</span>
-                            Paste any repository file link. We'll extract the raw audio stream automatically.
+                            <span class="font-bold block text-sm md:text-lg mb-1">GitHub Direct Stream</span>
+                            <p class="opacity-60 leading-relaxed">Paste any file link. We'll automatically bypass the UI
+                                and extract the high-fidelity raw stream.</p>
                         </div>
                     </div>
 
                     <div id="driveHint"
-                        class="hidden text-xs md:text-sm text-indigo-200 bg-indigo-900/30 p-4 md:p-5 rounded-2xl border border-indigo-500/20 flex items-center gap-4 animate-fade-in-up">
-                        <i class="fa-brands fa-google-drive text-xl md:text-2xl text-green-400"></i>
+                        class="hidden text-xs md:text-sm text-white/80 bg-white/5 p-6 md:p-8 rounded-[2rem] border border-white/10 flex items-center gap-6 animate-fade-in-up">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-brands fa-google-drive text-2xl md:text-3xl text-green-400"></i>
+                        </div>
                         <div>
-                            <span class="font-bold block text-sm md:text-base text-green-300">Google Drive Mode</span>
-                            Paste a "Anyone with the link" URL. <b>We use a secure proxy</b> to decode the Google audio
-                            stream.
+                            <span class="font-bold block text-sm md:text-lg mb-1 text-green-300">Google Drive
+                                Turbo</span>
+                            <p class="opacity-60 leading-relaxed">Ensure file is shared as <b>"Anyone with the
+                                    link"</b>. We use a high-speed secure proxy to decode the stream.</p>
                         </div>
                     </div>
 
@@ -304,107 +424,129 @@
         </div>
 
         <div id="driveIframeContainer"
-            class="hidden transition-all duration-700 transform translate-y-12 opacity-0 mb-6 md:mb-10 text-center animate-fade-in-up">
-            <div
-                class="glass-card rounded-[2rem] p-4 md:p-6 inline-block w-full max-w-2xl relative overflow-hidden bg-black/20">
+            class="hidden transition-all duration-1000 transform translate-y-12 opacity-0 mb-8 md:mb-12 text-center animate-fade-in-up">
+            <div class="glass-card rounded-[3rem] p-8 md:p-10 inline-block w-full max-w-2xl relative overflow-hidden">
+                <div class="music-card-glow"></div>
                 <div
-                    class="mb-4 flex items-center justify-center gap-2 text-indigo-300 font-bold text-sm tracking-widest uppercase">
-                    <i class="fa-brands fa-google-drive"></i> Standard Player Active
+                    class="mb-6 flex items-center justify-center gap-3 text-white/60 font-black text-xs tracking-[0.4em] uppercase">
+                    <i class="fa-brands fa-google-drive text-green-400"></i> Legacy Drive Player
                 </div>
                 <div
-                    class="relative w-full pb-[20%] min-h-[150px] bg-black/50 rounded-xl overflow-hidden shadow-inner border border-white/10">
+                    class="relative w-full pb-[40%] md:pb-[25%] bg-black/60 rounded-[2rem] overflow-hidden shadow-3xl border border-white/10">
                     <iframe id="driveFrame" src="" allow="autoplay"
-                        class="absolute inset-0 w-full h-full border-0"></iframe>
+                        class="absolute inset-0 w-full h-full border-0 contrast-125 saturate-150"></iframe>
                 </div>
-                <p class="mt-4 text-xs text-white/40 font-mono">
-                    Sonic Visualizer disabled due to Google Drive restrictions. <br>
-                    <a href="#" onclick="location.reload()" class="text-white hover:text-indigo-400 underline">Reload
-                        Engine</a>
-                </p>
+                <div class="mt-8 flex flex-col items-center gap-4">
+                    <p class="text-xs text-white/40 font-medium leading-relaxed">
+                        Direct visualizer is restricted for this file by Google's policy.
+                    </p>
+                    <button onclick="location.reload()"
+                        class="px-8 py-3 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-widest text-white/60 hover:text-white hover:bg-white/10 transition-all uppercase">
+                        Reset Engine
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div id="playerSection" class="hidden transition-all duration-700 transform translate-y-12 opacity-0">
-            <div class="glass-card rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 relative overflow-hidden">
+        <div id="playerSection" class="hidden transition-all duration-1000 transform translate-y-12 opacity-0">
+            <div class="glass-card rounded-[3rem] p-8 md:p-12 relative overflow-hidden group">
+                <div class="music-card-glow"></div>
 
-                <div class="flex items-start justify-between mb-6 md:mb-8 relative z-10">
-                    <div class="overflow-hidden mr-3">
-                        <h2 class="text-xl md:text-3xl font-bold text-white truncate w-full drop-shadow-md leading-tight"
-                            id="trackTitle">Audio Track</h2>
-                        <div class="flex flex-wrap items-center gap-2 md:gap-3 mt-2">
-                            <span
-                                class="px-2 md:px-3 py-1 rounded-lg bg-white/10 text-[10px] md:text-xs font-mono border border-white/5"
-                                id="fileSize">0.0 MB</span>
-                            <span
-                                class="px-2 md:px-3 py-1 rounded-lg bg-indigo-500/20 text-[10px] md:text-xs font-bold text-indigo-300 border border-indigo-500/20 tracking-wider">STEREO
-                                HQ</span>
+                <!-- Player Header: Metadata & Share -->
+                <div class="flex items-center justify-between mb-8 relative z-10">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center border border-white/20 animate-spin-slow">
+                            <i class="fa-solid fa-compact-disc text-white/50 text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold tracking-[0.3em] text-white/40 uppercase block mb-1">Now
+                                Streaming</span>
+                            <h2 class="text-xl md:text-3xl font-black text-white truncate max-w-[200px] md:max-w-md drop-shadow-xl"
+                                id="trackTitle">Sonic Track</h2>
                         </div>
                     </div>
 
-                    <div class="flex gap-2">
+                    <div class="flex gap-3">
                         <button onclick="openShareModal()"
-                            class="clay-element w-10 h-10 md:w-14 md:h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-indigo-300 transition-colors rounded-xl md:rounded-2xl tooltip-btn"
-                            title="Share & Embed">
-                            <i class="fa-solid fa-share-nodes text-lg md:text-2xl"></i>
-                        </button>
-                        <button onclick="downloadAudio()"
-                            class="clay-element w-10 h-10 md:w-14 md:h-14 flex-shrink-0 flex items-center justify-center text-white hover:text-green-300 transition-colors rounded-xl md:rounded-2xl tooltip-btn"
-                            title="Download MP3">
-                            <i class="fa-solid fa-file-arrow-down text-lg md:text-2xl"></i>
+                            class="clay-element w-12 h-12 flex items-center justify-center text-white hover:text-primary transition-all rounded-2xl group/btn"
+                            title="Share Link">
+                            <i class="fa-solid fa-share-nodes text-xl group-hover/btn:scale-110"></i>
                         </button>
                     </div>
                 </div>
 
-                <div
-                    class="relative bg-black/40 rounded-[1.5rem] md:rounded-[2rem] mb-6 md:mb-10 border border-white/5 shadow-inner h-32 md:h-48 flex items-center justify-center overflow-hidden group">
-                    <canvas id="visualizer"
-                        class="w-full h-full opacity-80 md:group-hover:opacity-100 transition-opacity duration-500"></canvas>
+                <!-- Central Player Body -->
+                <div class="relative mb-10">
+                    <!-- Sculpted Visualizer Container -->
                     <div
-                        class="absolute top-3 right-3 md:top-4 md:right-4 bg-black/50 backdrop-blur-md px-2 md:px-3 py-1 rounded-full border border-white/10 text-[8px] md:text-[10px] font-bold tracking-widest text-white/50">
-                        SPECTRUM
+                        class="relative bg-black/60 rounded-[2.5rem] p-4 border border-white/10 shadow-3xl overflow-hidden group/viz h-48 md:h-64 flex items-center justify-center">
+                        <canvas id="visualizer"
+                            class="w-full h-full opacity-90 transition-all duration-700 group-hover/viz:opacity-100 group-hover/viz:scale-[1.02]"></canvas>
+
+                        <!-- Info Overlay -->
+                        <div
+                            class="absolute bottom-4 left-6 right-6 flex justify-between items-center pointer-events-none">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                                <span
+                                    class="text-[8px] md:text-[10px] font-bold tracking-widest text-white/40 uppercase">Audio
+                                    Spectrum Active</span>
+                            </div>
+                            <span id="fileSize"
+                                class="px-3 py-1 rounded-full bg-white/5 text-[8px] md:text-[10px] font-mono text-white/40 border border-white/10">0.0
+                                MB</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-6 md:space-y-8 relative z-10">
-                    <div class="flex justify-center mb-2 md:mb-4">
-                        <button id="bassBtn" onclick="toggleBass()"
-                            class="px-4 md:px-6 py-2 rounded-full border border-white/10 bg-white/5 text-xs md:text-sm font-bold text-white/60 hover:text-white transition-all flex items-center gap-2 active:scale-95">
-                            <i class="fa-solid fa-wave-square"></i> DEEP BASS <span id="bassStatus"
-                                class="w-2 h-2 rounded-full bg-gray-500 ml-1"></span>
-                        </button>
-                    </div>
-
-                    <div class="relative w-full group px-1 md:px-2">
-                        <input type="range" id="progressBar" value="0" step="0.1"
-                            class="w-full h-2 md:h-3 rounded-lg appearance-none cursor-pointer z-20 relative"
-                            oninput="seekAudio()">
-                        <div class="absolute top-0 left-0 h-2 md:h-3 bg-white/10 w-full rounded-lg pointer-events-none">
+                <!-- Controls & Progress -->
+                <div class="space-y-8 relative z-10">
+                    <div class="px-2">
+                        <div class="relative w-full mb-3 group">
+                            <input type="range" id="progressBar" value="0" step="0.1"
+                                class="w-full h-1.5 md:h-2 rounded-lg appearance-none cursor-pointer z-20 relative bg-transparent"
+                                oninput="seekAudio()">
+                            <div
+                                class="absolute top-0 left-0 h-1.5 md:h-2 bg-white/5 w-full rounded-lg pointer-events-none">
+                            </div>
+                            <div id="progressFill"
+                                class="absolute top-0 left-0 h-1.5 md:h-2 bg-gradient-to-r from-primary via-secondary to-primary rounded-lg pointer-events-none w-0 shadow-[0_0_20px_var(--primary-low)] transition-all duration-100">
+                            </div>
                         </div>
-                        <div id="progressFill"
-                            class="absolute top-0 left-0 h-2 md:h-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg pointer-events-none w-0 shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                        <div
+                            class="flex justify-between text-[10px] md:text-xs font-black text-white/30 tracking-widest font-mono">
+                            <span id="currentTime">00:00</span>
+                            <span id="duration">00:00</span>
                         </div>
                     </div>
 
-                    <div
-                        class="flex justify-between text-[10px] md:text-xs font-bold text-white/40 tracking-[0.2em] font-mono px-1">
-                        <span id="currentTime">0:00</span>
-                        <span id="duration">0:00</span>
-                    </div>
-
-                    <div class="flex items-center justify-center gap-6 md:gap-10">
+                    <div class="flex items-center justify-center gap-8 md:gap-12">
                         <button onclick="skip(-10)"
-                            class="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
-                            <i class="fa-solid fa-rotate-left text-lg md:text-xl"></i>
+                            class="w-14 h-14 rounded-2xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
+                            <i class="fa-solid fa-backward-step text-xl"></i>
                         </button>
 
                         <button onclick="togglePlay()" id="playBtn"
-                            class="w-20 h-20 md:w-24 md:h-24 rounded-full clay-button-primary flex items-center justify-center transform hover:scale-105 transition-all active:scale-90 shadow-2xl border-4 border-white/10">
-                            <i class="fa-solid fa-play text-3xl md:text-4xl ml-1 md:ml-2"></i>
+                            class="w-24 h-24 md:w-28 md:h-28 rounded-full clay-button-primary flex items-center justify-center transform hover:scale-105 transition-all active:scale-95 shadow-3xl border-8 border-white/5">
+                            <i class="fa-solid fa-play text-4xl md:text-5xl ml-2"></i>
                         </button>
 
                         <button onclick="skip(10)"
-                            class="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
-                            <i class="fa-solid fa-rotate-right text-lg md:text-xl"></i>
+                            class="w-14 h-14 rounded-2xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 transition-all clay-element active:scale-90">
+                            <i class="fa-solid fa-forward-step text-xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex justify-center gap-6 pt-4">
+                        <button id="bassBtn" onclick="toggleBass()"
+                            class="px-6 py-2.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-black tracking-[0.2em] text-white/40 hover:text-white transition-all flex items-center gap-3 active:scale-95 uppercase">
+                            <i class="fa-solid fa-drum text-xs"></i> <span>Turbo Bass</span> <span id="bassStatus"
+                                class="w-2 h-2 rounded-full bg-white/20"></span>
+                        </button>
+                        <button onclick="downloadAudio()"
+                            class="px-6 py-2.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-black tracking-[0.2em] text-white/40 hover:text-white transition-all flex items-center gap-3 active:scale-95 uppercase">
+                            <i class="fa-solid fa-cloud-arrow-down text-xs"></i> <span>Archive</span>
                         </button>
                     </div>
                 </div>
@@ -435,881 +577,906 @@
             </div>
 
             <div class="space-y-6">
-                <div>
-                    <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Direct
-                        Link</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="shareLinkInput" readonly
-                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs md:text-sm text-indigo-200 font-mono focus:outline-none focus:border-indigo-500/50">
-                        <button onclick="copyToClipboard('shareLinkInput')"
-                            class="clay-element w-10 md:w-12 flex items-center justify-center text-white hover:text-green-400 rounded-xl transition-colors">
-                            <i class="fa-regular fa-copy"></i>
-                        </button>
+                <div class="space-y-8">
+                    <div class="p-6 bg-black/40 rounded-3xl border border-white/5 relative overflow-hidden group/share">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover/share:opacity-100 transition-opacity">
+                        </div>
+                        <label class="block text-[10px] font-black text-white/40 tracking-[0.3em] mb-4 uppercase">Direct
+                            Access Link</label>
+                        <div class="flex gap-3 relative z-10">
+                            <input type="text" id="shareLinkInput" readonly
+                                class="w-full bg-black/60 border border-white/10 rounded-2xl px-5 py-4 text-xs text-primary font-mono focus:outline-none focus:border-primary/50 shadow-inner">
+                            <button onclick="copyToClipboard('shareLinkInput')"
+                                class="clay-element w-14 flex items-center justify-center text-white hover:text-primary rounded-2xl transition-all shadow-lg active:scale-90">
+                                <i class="fa-regular fa-copy text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-6 bg-black/40 rounded-3xl border border-white/5 relative overflow-hidden group/embed">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-transparent opacity-0 group-hover/embed:opacity-100 transition-opacity">
+                        </div>
+                        <label
+                            class="block text-[10px] font-black text-white/40 tracking-[0.3em] mb-4 uppercase">Holographic
+                            Embed Code</label>
+                        <div class="relative z-10">
+                            <textarea id="embedCodeInput" readonly rows="4"
+                                class="w-full bg-black/60 border border-white/10 rounded-2xl px-5 py-4 text-[10px] text-secondary font-mono focus:outline-none focus:border-secondary/50 resize-none shadow-inner"></textarea>
+                            <button onclick="copyToClipboard('embedCodeInput')"
+                                class="absolute top-3 right-3 clay-element w-10 h-10 flex items-center justify-center text-white hover:text-secondary rounded-xl transition-all shadow-lg active:scale-90">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-white/60 tracking-widest mb-2 uppercase">Embed Code
-                        (HTML)</label>
-                    <div class="relative">
-                        <textarea id="embedCodeInput" readonly rows="4"
-                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] md:text-xs text-indigo-200 font-mono focus:outline-none focus:border-indigo-500/50 resize-none"></textarea>
-                        <button onclick="copyToClipboard('embedCodeInput')"
-                            class="absolute top-2 right-2 clay-element w-8 h-8 flex items-center justify-center text-white hover:text-green-400 rounded-lg transition-colors">
-                            <i class="fa-regular fa-copy text-xs"></i>
-                        </button>
-                    </div>
-                    <p class="text-[10px] text-white/40 mt-2">Paste this code into any website to show the full player
-                        with visualizer.</p>
+                <div id="copyFeedback"
+                    class="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-primary text-white text-[10px] font-black tracking-widest px-6 py-3 rounded-full shadow-2xl opacity-0 transition-all pointer-events-none uppercase scale-90">
+                    Synchronized to Clipboard
                 </div>
-            </div>
-
-            <div id="copyFeedback"
-                class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-4 py-2 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none font-bold whitespace-nowrap">
-                COPIED TO CLIPBOARD
             </div>
         </div>
-    </div>
 
-    <script>
-        // --- Initialization & Share Logic ---
-        let isEmbedMode = false;
-
-        window.addEventListener('load', () => {
-            // Check for shared URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const audioParam = urlParams.get('audio');
-            const typeParam = urlParams.get('type');
-
-            if (audioParam) {
-                isEmbedMode = true;
-
-                // Hide Main UI Elements for Embed/Share Mode
-                document.getElementById('mainHeader').style.display = 'none';
-                document.getElementById('footerText').style.display = 'none';
-                document.getElementById('inputUI').style.display = 'none';
-
-                // Determine type
-                const decodedUrl = decodeURIComponent(audioParam);
-                if (typeParam === 'github' || decodedUrl.includes('github.com')) {
-                    switchTab('github');
-                } else if (typeParam === 'drive' || decodedUrl.includes('drive.google')) {
-                    switchTab('drive');
-                } else {
-                    switchTab('url');
-                }
-
-                // Set input and auto-process
-                document.getElementById('urlInput').value = decodedUrl;
-                // Add a small delay to ensure UI is ready
-                setTimeout(() => processAudio(), 500);
+        <script>
+            // --- Theme System ---
+            function setTheme(theme, el) {
+                document.body.className = theme === 'default' ? '' : 'theme-' + theme;
+                document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
+                if (el) el.classList.add('active');
+                localStorage.setItem('sonic-theme', theme);
             }
-        });
 
-        function openShareModal() {
-            const rawUrl = document.getElementById('urlInput').value.trim();
-            if (!rawUrl) return;
+            // Initialize theme
+            window.addEventListener('DOMContentLoaded', () => {
+                const savedTheme = localStorage.getItem('sonic-theme') || 'default';
+                if (savedTheme !== 'default') {
+                    setTheme(savedTheme, document.querySelector(`.theme-dot[onclick*="${savedTheme}"]`));
+                }
+            });
 
-            const modal = document.getElementById('shareModal');
-            const content = document.getElementById('shareModalContent');
-            const linkInput = document.getElementById('shareLinkInput');
-            const embedInput = document.getElementById('embedCodeInput');
+            // --- Initialization & Share Logic ---
+            let isEmbedMode = false;
 
-            const baseUrl = window.location.origin + window.location.pathname;
-            const encodedAudio = encodeURIComponent(rawUrl);
-            const type = inputType;
+            window.addEventListener('load', () => {
+                // Check for shared URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const audioParam = urlParams.get('audio');
+                const typeParam = urlParams.get('type');
 
-            const shareUrl = `${baseUrl}?audio=${encodedAudio}&type=${type}`;
-            const embedCode = `<iframe src="${shareUrl}" width="100%" height="750" frameborder="0" allow="autoplay; encrypted-media" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);"></iframe>`;
+                if (audioParam) {
+                    isEmbedMode = true;
 
-            linkInput.value = shareUrl;
-            embedInput.value = embedCode;
+                    // Hide Main UI Elements for Embed/Share Mode
+                    document.getElementById('mainHeader').style.display = 'none';
+                    document.getElementById('footerText').style.display = 'none';
+                    document.getElementById('inputUI').style.display = 'none';
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0');
-                content.classList.add('scale-100', 'opacity-100');
-            }, 10);
-        }
-
-        function closeShareModal() {
-            const modal = document.getElementById('shareModal');
-            const content = document.getElementById('shareModalContent');
-
-            content.classList.remove('scale-100', 'opacity-100');
-            content.classList.add('scale-95', 'opacity-0');
-
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
-
-        function copyToClipboard(elementId) {
-            const el = document.getElementById(elementId);
-            el.select();
-            el.setSelectionRange(0, 99999);
-
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showCopyFeedback();
-                } else {
-                    if (navigator.clipboard) {
-                        navigator.clipboard.writeText(el.value).then(() => {
-                            showCopyFeedback();
-                        }).catch(err => {
-                            console.error('Failed to copy', err);
-                            alert("Could not auto-copy. Please manually copy the text.");
-                        });
+                    // Determine type
+                    const decodedUrl = decodeURIComponent(audioParam);
+                    if (typeParam === 'github' || decodedUrl.includes('github.com')) {
+                        switchTab('github');
+                    } else if (typeParam === 'drive' || decodedUrl.includes('drive.google')) {
+                        switchTab('drive');
+                    } else {
+                        switchTab('url');
                     }
+
+                    // Set input and auto-process
+                    document.getElementById('urlInput').value = decodedUrl;
+                    // Add a small delay to ensure UI is ready
+                    setTimeout(() => processAudio(), 500);
                 }
-            } catch (err) {
-                console.error('Oops, unable to copy', err);
-                alert("Could not auto-copy. Please manually copy the text.");
-            }
-        }
-
-        function showCopyFeedback() {
-            const fb = document.getElementById('copyFeedback');
-            fb.classList.remove('opacity-0');
-            setTimeout(() => {
-                fb.classList.add('opacity-0');
-            }, 2000);
-        }
-
-        // --- 3D Tilt Effect (Desktop Only) ---
-        const card = document.getElementById('mainCard');
-        const container = document.querySelector('main');
-
-        // Only add tilt listener on larger screens to prevent mobile scroll interference
-        if (window.matchMedia("(min-width: 768px)").matches) {
-            container.addEventListener('mousemove', (e) => {
-                const xAxis = (window.innerWidth / 2 - e.pageX) / 40;
-                const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
-                const clampX = Math.max(-10, Math.min(10, xAxis));
-                const clampY = Math.max(-10, Math.min(10, yAxis));
-
-                card.style.transform = `rotateY(${clampX}deg) rotateX(${clampY}deg)`;
             });
 
-            container.addEventListener('mouseleave', () => {
-                card.style.transform = `rotateY(0deg) rotateX(0deg)`;
-            });
-        }
+            function openShareModal() {
+                const rawUrl = document.getElementById('urlInput').value.trim();
+                if (!rawUrl) return;
 
-        // --- Audio Logic ---
-        let audioContext;
-        let analyser;
-        let bassFilter;
-        let source; // For Buffer Mode
-        let audioElement; // For Direct Stream Mode
-        let mediaElementSource; // For connecting Direct Stream to Context
-        let audioBuffer;
+                const modal = document.getElementById('shareModal');
+                const content = document.getElementById('shareModalContent');
+                const linkInput = document.getElementById('shareLinkInput');
+                const embedInput = document.getElementById('embedCodeInput');
 
-        let playbackMode = 'buffer'; // 'buffer' or 'stream'
-        let isPlaying = false;
-        let isBassBoosted = false;
-        let startTime = 0;
-        let pausedAt = 0;
-        let animationId;
-        let currentBlobUrl = null;
-        let currentFileName = "audio.mp3";
-        let inputType = 'url';
-        let isVisualizerActive = true;
+                const baseUrl = window.location.origin + window.location.pathname;
+                const encodedAudio = encodeURIComponent(rawUrl);
+                const type = inputType;
 
-        const urlInput = document.getElementById('urlInput');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const loadingText = document.getElementById('loadingText');
-        const errorMsg = document.getElementById('errorMsg');
-        const playerSection = document.getElementById('playerSection');
-        const visualizerCanvas = document.getElementById('visualizer');
-        const canvasCtx = visualizerCanvas.getContext('2d');
-        const playBtn = document.getElementById('playBtn');
-        const progressBar = document.getElementById('progressBar');
-        const progressFill = document.getElementById('progressFill');
-        const currentTimeEl = document.getElementById('currentTime');
-        const durationEl = document.getElementById('duration');
-        const trackTitle = document.getElementById('trackTitle');
-        const bassBtn = document.getElementById('bassBtn');
-        const bassStatus = document.getElementById('bassStatus');
+                const shareUrl = `${baseUrl}?audio=${encodedAudio}&type=${type}`;
+                const embedCode = `<iframe src="${shareUrl}" width="100%" height="750" frameborder="0" allow="autoplay; encrypted-media" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);"></iframe>`;
 
-        function switchTab(type) {
-            inputType = type;
-            const tabUrl = document.getElementById('tab-url');
-            const tabGithub = document.getElementById('tab-github');
-            const tabDrive = document.getElementById('tab-drive');
+                linkInput.value = shareUrl;
+                embedInput.value = embedCode;
 
-            const indicator = document.getElementById('tabIndicator');
-            const githubHint = document.getElementById('githubHint');
-            const driveHint = document.getElementById('driveHint');
-            const input = document.getElementById('urlInput');
-
-            // Reset all tabs
-            [tabUrl, tabGithub, tabDrive].forEach(t => {
-                t.classList.replace('text-white', 'text-white/50');
-                t.classList.remove('font-bold');
-            });
-
-            // Hide all hints
-            githubHint.classList.add('hidden');
-            driveHint.classList.add('hidden');
-
-            if (type === 'url') {
-                tabUrl.classList.replace('text-white/50', 'text-white');
-                tabUrl.classList.add('font-bold');
-                indicator.style.transform = 'translateX(0)';
-                indicator.style.width = '32%';
-                input.placeholder = "Paste audio link here...";
-
-            } else if (type === 'github') {
-                tabGithub.classList.replace('text-white/50', 'text-white');
-                tabGithub.classList.add('font-bold');
-                indicator.style.transform = 'translateX(100%)';
-                indicator.style.width = '32%';
-                githubHint.classList.remove('hidden');
-                input.placeholder = "https://github.com/user/repo/blob/main/audio.mp3";
-
-            } else if (type === 'drive') {
-                tabDrive.classList.replace('text-white/50', 'text-white');
-                tabDrive.classList.add('font-bold');
-                indicator.style.transform = 'translateX(200%)'; // Move to 3rd position
-                indicator.style.width = '32%';
-                driveHint.classList.remove('hidden');
-                input.placeholder = "https://drive.google.com/file/d/1234abcd.../view";
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 10);
             }
 
-            errorMsg.classList.add('hidden');
-        }
+            function closeShareModal() {
+                const modal = document.getElementById('shareModal');
+                const content = document.getElementById('shareModalContent');
 
-        // Wrapper for fetch with timeout
-        async function fetchWithTimeout(resource, options = {}) {
-            const { timeout = 5000 } = options;
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeout);
-            const response = await fetch(resource, {
-                ...options,
-                signal: controller.signal
-            });
-            clearTimeout(id);
-            return response;
-        }
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
 
-        async function processAudio() {
-            const rawUrl = urlInput.value.trim();
-            if (!rawUrl) {
-                showError("Please enter a URL first.");
-                return;
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
             }
 
-            stopAudio();
-            errorMsg.classList.add('hidden');
-            loadingOverlay.classList.remove('hidden');
-            loadingOverlay.classList.add('flex');
+            function copyToClipboard(elementId) {
+                const el = document.getElementById(elementId);
+                el.select();
+                el.setSelectionRange(0, 99999);
 
-            playerSection.classList.add('translate-y-12', 'opacity-0');
-            setTimeout(() => {
-                if (playerSection.classList.contains('translate-y-12')) playerSection.classList.add('hidden');
-            }, 500);
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        showCopyFeedback();
+                    } else {
+                        if (navigator.clipboard) {
+                            navigator.clipboard.writeText(el.value).then(() => {
+                                showCopyFeedback();
+                            }).catch(err => {
+                                console.error('Failed to copy', err);
+                                alert("Could not auto-copy. Please manually copy the text.");
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error('Oops, unable to copy', err);
+                    alert("Could not auto-copy. Please manually copy the text.");
+                }
+            }
 
-            try {
-                let fetchUrl = rawUrl;
-                let fileName = "converted_audio.mp3";
-                let directStreamFallback = rawUrl;
+            function showCopyFeedback() {
+                const fb = document.getElementById('copyFeedback');
+                fb.classList.remove('opacity-0');
+                setTimeout(() => {
+                    fb.classList.add('opacity-0');
+                }, 2000);
+            }
 
-                // --- GITHUB LOGIC ---
-                if (inputType === 'github' || (rawUrl.includes('github.com') && !rawUrl.includes('drive.google'))) {
-                    loadingText.innerText = "ACCESSING GITHUB NODE...";
-                    fetchUrl = rawUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
-                    fileName = rawUrl.split('/').pop();
-                    currentFileName = fileName;
-                    trackTitle.innerText = fileName;
+            // --- 3D Tilt Effect (Desktop Only) ---
+            const card = document.getElementById('mainCard');
+            const container = document.querySelector('main');
 
-                    const response = await fetchWithTimeout(fetchUrl);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const blob = await response.blob();
-                    await handleAudioBlob(blob);
+            // Only add tilt listener on larger screens to prevent mobile scroll interference
+            if (window.matchMedia("(min-width: 768px)").matches) {
+                container.addEventListener('mousemove', (e) => {
+                    const xAxis = (window.innerWidth / 2 - e.pageX) / 40;
+                    const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
+                    const clampX = Math.max(-10, Math.min(10, xAxis));
+                    const clampY = Math.max(-10, Math.min(10, yAxis));
+
+                    card.style.transform = `rotateY(${clampX}deg) rotateX(${clampY}deg)`;
+                });
+
+                container.addEventListener('mouseleave', () => {
+                    card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+                });
+            }
+
+            // --- Audio Logic ---
+            let audioContext;
+            let analyser;
+            let bassFilter;
+            let source; // For Buffer Mode
+            let audioElement; // For Direct Stream Mode
+            let mediaElementSource; // For connecting Direct Stream to Context
+            let audioBuffer;
+
+            let playbackMode = 'buffer'; // 'buffer' or 'stream'
+            let isPlaying = false;
+            let isBassBoosted = false;
+            let startTime = 0;
+            let pausedAt = 0;
+            let animationId;
+            let currentBlobUrl = null;
+            let currentFileName = "audio.mp3";
+            let inputType = 'url';
+            let isVisualizerActive = true;
+
+            const urlInput = document.getElementById('urlInput');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            const errorMsg = document.getElementById('errorMsg');
+            const playerSection = document.getElementById('playerSection');
+            const visualizerCanvas = document.getElementById('visualizer');
+            const canvasCtx = visualizerCanvas.getContext('2d');
+            const playBtn = document.getElementById('playBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const currentTimeEl = document.getElementById('currentTime');
+            const durationEl = document.getElementById('duration');
+            const trackTitle = document.getElementById('trackTitle');
+            const bassBtn = document.getElementById('bassBtn');
+            const bassStatus = document.getElementById('bassStatus');
+
+            function switchTab(type) {
+                inputType = type;
+                const tabUrl = document.getElementById('tab-url');
+                const tabGithub = document.getElementById('tab-github');
+                const tabDrive = document.getElementById('tab-drive');
+
+                const indicator = document.getElementById('tabIndicator');
+                const githubHint = document.getElementById('githubHint');
+                const driveHint = document.getElementById('driveHint');
+                const input = document.getElementById('urlInput');
+
+                // Reset all tabs
+                [tabUrl, tabGithub, tabDrive].forEach(t => {
+                    t.classList.replace('text-white', 'text-white/50');
+                    t.classList.remove('font-bold');
+                });
+
+                // Hide all hints
+                githubHint.classList.add('hidden');
+                driveHint.classList.add('hidden');
+
+                if (type === 'url') {
+                    tabUrl.classList.replace('text-white/50', 'text-white');
+                    tabUrl.classList.add('font-bold');
+                    indicator.style.transform = 'translateX(0)';
+                    indicator.style.width = '32%';
+                    input.placeholder = "Paste audio link here...";
+
+                } else if (type === 'github') {
+                    tabGithub.classList.replace('text-white/50', 'text-white');
+                    tabGithub.classList.add('font-bold');
+                    indicator.style.transform = 'translateX(100%)';
+                    indicator.style.width = '32%';
+                    githubHint.classList.remove('hidden');
+                    input.placeholder = "https://github.com/user/repo/blob/main/audio.mp3";
+
+                } else if (type === 'drive') {
+                    tabDrive.classList.replace('text-white/50', 'text-white');
+                    tabDrive.classList.add('font-bold');
+                    indicator.style.transform = 'translateX(200%)'; // Move to 3rd position
+                    indicator.style.width = '32%';
+                    driveHint.classList.remove('hidden');
+                    input.placeholder = "https://drive.google.com/file/d/1234abcd.../view";
                 }
 
-                // --- GOOGLE DRIVE LOGIC (TURBO ENGINE) ---
-                else if (inputType === 'drive' || rawUrl.includes('drive.google.com')) {
-                    const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                errorMsg.classList.add('hidden');
+            }
 
-                    if (idMatch && idMatch[1]) {
-                        const fileId = idMatch[1];
-                        fileName = "Google_Drive_Audio.mp3";
+            // Wrapper for fetch with timeout
+            async function fetchWithTimeout(resource, options = {}) {
+                const { timeout = 5000 } = options;
+                const controller = new AbortController();
+                const id = setTimeout(() => controller.abort(), timeout);
+                const response = await fetch(resource, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(id);
+                return response;
+            }
+
+            async function processAudio() {
+                const rawUrl = urlInput.value.trim();
+                if (!rawUrl) {
+                    showError("Please enter a URL first.");
+                    return;
+                }
+
+                stopAudio();
+                errorMsg.classList.add('hidden');
+                loadingOverlay.classList.remove('hidden');
+                loadingOverlay.classList.add('flex');
+
+                playerSection.classList.add('translate-y-12', 'opacity-0');
+                setTimeout(() => {
+                    if (playerSection.classList.contains('translate-y-12')) playerSection.classList.add('hidden');
+                }, 500);
+
+                try {
+                    let fetchUrl = rawUrl;
+                    let fileName = "converted_audio.mp3";
+                    let directStreamFallback = rawUrl;
+
+                    // --- GITHUB LOGIC ---
+                    if (inputType === 'github' || (rawUrl.includes('github.com') && !rawUrl.includes('drive.google'))) {
+                        loadingText.innerText = "ACCESSING GITHUB NODE...";
+                        fetchUrl = rawUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+                        fileName = rawUrl.split('/').pop();
                         currentFileName = fileName;
                         trackTitle.innerText = fileName;
 
-                        loadingText.innerText = "TURBO MODE...";
-
-                        // ULTRA-FAST: Race all proxies simultaneously with 2s max wait
-                        const driveUrl = `https://drive.google.com/uc?export=download&id=${fileId}&confirm=t`;
-                        const proxies = [
-                            `https://api.allorigins.win/raw?url=${encodeURIComponent(driveUrl)}`,
-                            `https://corsproxy.io/?${encodeURIComponent(driveUrl)}`
-                        ];
-
-                        // Create a race between all proxies AND a timeout
-                        const proxyRace = proxies.map(async (proxyUrl) => {
-                            try {
-                                const controller = new AbortController();
-                                const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5 seconds max!
-
-                                const response = await fetch(proxyUrl, { signal: controller.signal });
-                                clearTimeout(timeoutId);
-
-                                if (!response.ok) throw new Error('Bad response');
-                                const blob = await response.blob();
-
-                                // Verify it's actually audio
-                                if (blob.type.includes('html') || blob.size < 5000) {
-                                    throw new Error('Not audio');
-                                }
-                                return blob;
-                            } catch (e) {
-                                return null; // This proxy failed
-                            }
-                        });
-
-                        // Race all proxies - first to return valid blob wins
-                        const results = await Promise.all(proxyRace);
-                        const validBlob = results.find(blob => blob !== null);
-
-                        if (validBlob) {
-                            await handleAudioBlob(validBlob);
-                        } else {
-                            // INSTANT IFRAME FALLBACK - No more waiting!
-                            console.log("Turbo proxies failed. Activating Standard Player.");
-                            renderDriveIframe(fileId);
-                        }
-                    } else {
-                        throw new Error("Invalid Drive URL");
-                    }
-                }
-
-                // --- STANDARD URL ---
-                else {
-                    fileName = rawUrl.split('/').pop() || "audio.mp3";
-                    currentFileName = fileName;
-                    trackTitle.innerText = fileName;
-                    loadingText.innerText = "BUFFERING STREAM...";
-
-                    try {
                         const response = await fetchWithTimeout(fetchUrl);
                         if (!response.ok) throw new Error(`HTTP ${response.status}`);
                         const blob = await response.blob();
                         await handleAudioBlob(blob);
-                    } catch (e) {
-                        // Fallback for standard URLs too
-                        console.warn("Fetch failed, trying direct stream", e);
-                        await initDirectStream(fetchUrl);
                     }
+
+                    // --- GOOGLE DRIVE LOGIC (TURBO ENGINE) ---
+                    else if (inputType === 'drive' || rawUrl.includes('drive.google.com')) {
+                        const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+
+                        if (idMatch && idMatch[1]) {
+                            const fileId = idMatch[1];
+                            fileName = "Google_Drive_Audio.mp3";
+                            currentFileName = fileName;
+                            trackTitle.innerText = fileName;
+
+                            loadingText.innerText = "TURBO MODE...";
+
+                            // ULTRA-FAST: Race all proxies simultaneously with 2s max wait
+                            const driveUrl = `https://drive.google.com/uc?export=download&id=${fileId}&confirm=t`;
+                            const proxies = [
+                                `https://api.allorigins.win/raw?url=${encodeURIComponent(driveUrl)}`,
+                                `https://corsproxy.io/?${encodeURIComponent(driveUrl)}`
+                            ];
+
+                            // Create a race between all proxies AND a timeout
+                            const proxyRace = proxies.map(async (proxyUrl) => {
+                                try {
+                                    const controller = new AbortController();
+                                    const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5 seconds max!
+
+                                    const response = await fetch(proxyUrl, { signal: controller.signal });
+                                    clearTimeout(timeoutId);
+
+                                    if (!response.ok) throw new Error('Bad response');
+                                    const blob = await response.blob();
+
+                                    // Verify it's actually audio
+                                    if (blob.type.includes('html') || blob.size < 5000) {
+                                        throw new Error('Not audio');
+                                    }
+                                    return blob;
+                                } catch (e) {
+                                    return null; // This proxy failed
+                                }
+                            });
+
+                            // Race all proxies - first to return valid blob wins
+                            const results = await Promise.all(proxyRace);
+                            const validBlob = results.find(blob => blob !== null);
+
+                            if (validBlob) {
+                                await handleAudioBlob(validBlob);
+                            } else {
+                                // INSTANT IFRAME FALLBACK - No more waiting!
+                                console.log("Turbo proxies failed. Activating Standard Player.");
+                                renderDriveIframe(fileId);
+                            }
+                        } else {
+                            throw new Error("Invalid Drive URL");
+                        }
+                    }
+
+                    // --- STANDARD URL ---
+                    else {
+                        fileName = rawUrl.split('/').pop() || "audio.mp3";
+                        currentFileName = fileName;
+                        trackTitle.innerText = fileName;
+                        loadingText.innerText = "BUFFERING STREAM...";
+
+                        try {
+                            const response = await fetchWithTimeout(fetchUrl);
+                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                            const blob = await response.blob();
+                            await handleAudioBlob(blob);
+                        } catch (e) {
+                            // Fallback for standard URLs too
+                            console.warn("Fetch failed, trying direct stream", e);
+                            await initDirectStream(fetchUrl);
+                        }
+                    }
+
+                } catch (err) {
+                    console.error("Critical Error:", err);
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('flex');
+
+                    if (rawUrl.includes('drive.google.com')) {
+                        // IF ALL ELSE FAILS: Use the Iframe Method
+                        // This is guaranteed to works because it uses Google's own player
+                        // We extract the ID one last time just to be sure
+                        const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                        if (idMatch && idMatch[1]) {
+                            renderDriveIframe(idMatch[1]);
+                            return;
+                        }
+                    }
+
+                    showError("Unable to load audio. Please check the link permission.");
+                }
+            }
+
+            function renderDriveIframe(fileId) {
+                // 1. Hide Input UI
+                document.getElementById('mainCard').style.display = 'none';
+                if (isEmbedMode) {
+                    document.getElementById('mainHeader').style.display = 'none';
+                    document.getElementById('footerText').style.display = 'none';
                 }
 
-            } catch (err) {
-                console.error("Critical Error:", err);
-                loadingOverlay.classList.add('hidden');
-                loadingOverlay.classList.remove('flex');
+                // 2. Show Iframe Container
+                const container = document.getElementById('driveIframeContainer');
+                const iframe = document.getElementById('driveFrame');
 
-                if (rawUrl.includes('drive.google.com')) {
-                    // IF ALL ELSE FAILS: Use the Iframe Method
-                    // This is guaranteed to works because it uses Google's own player
-                    // We extract the ID one last time just to be sure
-                    const idMatch = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-                    if (idMatch && idMatch[1]) {
-                        renderDriveIframe(idMatch[1]);
-                        return;
-                    }
-                }
+                // Construct the Preview URL (Standard Google Player)
+                iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
 
-                showError("Unable to load audio. Please check the link permission.");
-            }
-        }
-
-        function renderDriveIframe(fileId) {
-            // 1. Hide Input UI
-            document.getElementById('mainCard').style.display = 'none';
-            if (isEmbedMode) {
-                document.getElementById('mainHeader').style.display = 'none';
-                document.getElementById('footerText').style.display = 'none';
+                container.classList.remove('hidden');
+                // Trigger animation
+                setTimeout(() => {
+                    container.classList.remove('translate-y-12', 'opacity-0');
+                }, 50);
             }
 
-            // 2. Show Iframe Container
-            const container = document.getElementById('driveIframeContainer');
-            const iframe = document.getElementById('driveFrame');
+            // --- MODE 1: BUFFER MODE (High Quality, Visualizer) ---
+            async function handleAudioBlob(blob) {
+                playbackMode = 'buffer';
 
-            // Construct the Preview URL (Standard Google Player)
-            iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+                const size = (blob.size / (1024 * 1024)).toFixed(2);
+                document.getElementById('fileSize').innerText = `${size} MB`;
 
-            container.classList.remove('hidden');
-            // Trigger animation
-            setTimeout(() => {
-                container.classList.remove('translate-y-12', 'opacity-0');
-            }, 50);
-        }
+                if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+                currentBlobUrl = URL.createObjectURL(blob);
 
-        // --- MODE 1: BUFFER MODE (High Quality, Visualizer) ---
-        async function handleAudioBlob(blob) {
-            playbackMode = 'buffer';
+                loadingText.innerText = "ANALYZING WAVEFORM...";
 
-            const size = (blob.size / (1024 * 1024)).toFixed(2);
-            document.getElementById('fileSize').innerText = `${size} MB`;
+                // Initialize Context if needed
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-            if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
-            currentBlobUrl = URL.createObjectURL(blob);
+                const arrayBuffer = await blob.arrayBuffer();
+                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-            loadingText.innerText = "ANALYZING WAVEFORM...";
+                setupAudioGraph(); // Re-setup nodes
 
-            // Initialize Context if needed
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                durationEl.innerText = formatTime(audioBuffer.duration);
+                progressBar.max = audioBuffer.duration;
+                pausedAt = 0;
+                startTime = 0;
 
-            const arrayBuffer = await blob.arrayBuffer();
-            audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-            setupAudioGraph(); // Re-setup nodes
-
-            durationEl.innerText = formatTime(audioBuffer.duration);
-            progressBar.max = audioBuffer.duration;
-            pausedAt = 0;
-            startTime = 0;
-
-            finishLoading();
-        }
-
-        // --- MODE 2: DIRECT STREAM MODE (Fallback, Reliable) ---
-        async function initDirectStream(url) {
-            playbackMode = 'stream';
-            document.getElementById('fileSize').innerText = "STREAM";
-
-            // Cleanup previous
-            if (audioElement) {
-                audioElement.pause();
-                audioElement.src = "";
-            }
-
-            audioElement = new Audio();
-            audioElement.crossOrigin = "anonymous"; // Try to get CORS for visualizer
-            audioElement.src = url;
-
-            // setup events
-            audioElement.addEventListener('loadedmetadata', () => {
-                durationEl.innerText = formatTime(audioElement.duration);
-                progressBar.max = audioElement.duration;
                 finishLoading();
-            });
-
-            audioElement.addEventListener('error', (e) => {
-                showError("Stream failed. The file might be private.");
-                loadingOverlay.classList.add('hidden');
-                loadingOverlay.classList.remove('flex');
-            });
-
-            audioElement.addEventListener('timeupdate', () => {
-                if (playbackMode === 'stream') updateProgressUI(audioElement.currentTime);
-            });
-
-            audioElement.addEventListener('ended', () => {
-                isPlaying = false;
-                updatePlayButton();
-            });
-
-            // Initialize Context for Visualizer (even in stream mode)
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            setupAudioGraph();
-
-            // Force load to trigger metadata
-            audioElement.load();
-        }
-
-        // --- MODE 3: EMBEDDED DRIVE PLAYER (Ultimate Fallback) ---
-        async function initEmbeddedDrivePlayer(fileId, embedUrl) {
-            playbackMode = 'stream';
-            document.getElementById('fileSize').innerText = "DRIVE";
-
-            // Cleanup previous
-            if (audioElement) {
-                audioElement.pause();
-                audioElement.src = "";
             }
 
-            // Google Drive has multiple direct download patterns
-            // For public files, we can construct direct streaming URLs
-            const directUrls = [
-                `https://drive.google.com/u/0/uc?id=${fileId}&export=download&confirm=t`,
-                `https://drive.usercontent.google.com/download?id=${fileId}&export=download&confirm=t`,
-                `https://drive.google.com/uc?id=${fileId}&export=download`
-            ];
+            // --- MODE 2: DIRECT STREAM MODE (Fallback, Reliable) ---
+            async function initDirectStream(url) {
+                playbackMode = 'stream';
+                document.getElementById('fileSize').innerText = "STREAM";
 
-            audioElement = new Audio();
-            audioElement.crossOrigin = "anonymous";
+                // Cleanup previous
+                if (audioElement) {
+                    audioElement.pause();
+                    audioElement.src = "";
+                }
 
-            // Try each direct URL pattern
-            let loadSuccess = false;
-            for (const url of directUrls) {
-                try {
-                    console.log(`Testing Drive URL: ${url}`);
-                    audioElement.src = url;
+                audioElement = new Audio();
+                audioElement.crossOrigin = "anonymous"; // Try to get CORS for visualizer
+                audioElement.src = url;
 
-                    // Setup events before loading
-                    const loadPromise = new Promise((resolve, reject) => {
-                        const timeout = setTimeout(() => reject(new Error('Timeout')), 5000);
-
-                        audioElement.addEventListener('loadedmetadata', () => {
-                            clearTimeout(timeout);
-                            resolve();
-                        }, { once: true });
-
-                        audioElement.addEventListener('error', () => {
-                            clearTimeout(timeout);
-                            reject(new Error('Load failed'));
-                        }, { once: true });
-                    });
-
-                    audioElement.load();
-                    await loadPromise;
-
-                    // If we get here, it loaded successfully
-                    loadSuccess = true;
-                    console.log('Drive URL loaded successfully!');
-
-                    // Setup remaining events
-                    audioElement.addEventListener('timeupdate', () => {
-                        if (playbackMode === 'stream') updateProgressUI(audioElement.currentTime);
-                    });
-
-                    audioElement.addEventListener('ended', () => {
-                        isPlaying = false;
-                        updatePlayButton();
-                    });
-
+                // setup events
+                audioElement.addEventListener('loadedmetadata', () => {
                     durationEl.innerText = formatTime(audioElement.duration);
                     progressBar.max = audioElement.duration;
-
-                    // Initialize Context for Visualizer
-                    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    setupAudioGraph();
-
                     finishLoading();
-                    break; // Success!
+                });
 
-                } catch (e) {
-                    console.warn(`Drive URL failed: ${url}`, e);
-                    continue;
-                }
-            }
+                audioElement.addEventListener('error', (e) => {
+                    showError("Stream failed. The file might be private.");
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('flex');
+                });
 
-            if (!loadSuccess) {
-                throw new Error("Google Drive is blocking this file. Please ensure it's shared as 'Anyone with the link' or try a smaller file.");
-            }
-        }
+                audioElement.addEventListener('timeupdate', () => {
+                    if (playbackMode === 'stream') updateProgressUI(audioElement.currentTime);
+                });
 
-        function setupAudioGraph() {
-            // Common node setup
-            if (!analyser) {
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.85;
-            }
-            if (!bassFilter) {
-                bassFilter = audioContext.createBiquadFilter();
-                bassFilter.type = 'lowshelf';
-                bassFilter.frequency.value = 200;
-                bassFilter.gain.value = isBassBoosted ? 15 : 0;
-            }
-
-            // Connect logic depends on mode during play, but we prep nodes here
-        }
-
-        function finishLoading() {
-            loadingOverlay.classList.add('hidden');
-            loadingOverlay.classList.remove('flex');
-
-            if (isEmbedMode) {
-                document.getElementById('mainCard').style.display = 'none';
-            }
-
-            playerSection.classList.remove('hidden');
-            void playerSection.offsetWidth;
-            playerSection.classList.remove('translate-y-12', 'opacity-0');
-
-            if (!isEmbedMode) {
-                togglePlay();
-            } else {
-                playBtn.classList.add('animate-pulse');
-            }
-        }
-
-        // --- UNIFIED CONTROLS ---
-
-        async function togglePlay() {
-            if (audioContext && audioContext.state === 'suspended') {
-                await audioContext.resume();
-            }
-
-            if (isPlaying) {
-                // PAUSE
-                if (playbackMode === 'buffer') {
-                    if (source) { try { source.stop(); } catch (e) { } }
-                    pausedAt = audioContext.currentTime - startTime;
-                } else {
-                    audioElement.pause();
-                }
-
-                isPlaying = false;
-                cancelAnimationFrame(animationId);
-            } else {
-                // PLAY
-                isPlaying = true;
-
-                if (playbackMode === 'buffer') {
-                    playBufferSource();
-                } else {
-                    // Stream Mode Visualizer Hook
-                    if (!mediaElementSource && audioElement) {
-                        try {
-                            mediaElementSource = audioContext.createMediaElementSource(audioElement);
-                            mediaElementSource.connect(bassFilter);
-                            bassFilter.connect(analyser);
-                            analyser.connect(audioContext.destination);
-                        } catch (e) { console.warn("Visualizer restricted due to CORS", e); }
-                    }
-                    audioElement.play();
-                }
-
-                drawMirrorVisualizer();
-                requestAnimationFrame(updateLoop);
-                playBtn.classList.remove('animate-pulse');
-            }
-            updatePlayButton();
-        }
-
-        function playBufferSource() {
-            source = audioContext.createBufferSource();
-            source.buffer = audioBuffer;
-            source.connect(bassFilter);
-            bassFilter.connect(analyser);
-            analyser.connect(audioContext.destination);
-
-            source.start(0, pausedAt);
-            startTime = audioContext.currentTime - pausedAt;
-
-            source.onended = () => {
-                if (isPlaying && (audioContext.currentTime - startTime) >= audioBuffer.duration - 0.1) {
+                audioElement.addEventListener('ended', () => {
                     isPlaying = false;
-                    pausedAt = 0;
                     updatePlayButton();
-                    cancelAnimationFrame(animationId);
+                });
+
+                // Initialize Context for Visualizer (even in stream mode)
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                setupAudioGraph();
+
+                // Force load to trigger metadata
+                audioElement.load();
+            }
+
+            // --- MODE 3: EMBEDDED DRIVE PLAYER (Ultimate Fallback) ---
+            async function initEmbeddedDrivePlayer(fileId, embedUrl) {
+                playbackMode = 'stream';
+                document.getElementById('fileSize').innerText = "DRIVE";
+
+                // Cleanup previous
+                if (audioElement) {
+                    audioElement.pause();
+                    audioElement.src = "";
                 }
-            };
-        }
 
-        function stopAudio() {
-            if (playbackMode === 'buffer') {
-                if (source) { try { source.stop(); } catch (e) { } }
-            } else {
-                if (audioElement) { audioElement.pause(); audioElement.currentTime = 0; }
-            }
-            isPlaying = false;
-            pausedAt = 0;
-            cancelAnimationFrame(animationId);
-            updatePlayButton();
-        }
+                // Google Drive has multiple direct download patterns
+                // For public files, we can construct direct streaming URLs
+                const directUrls = [
+                    `https://drive.google.com/u/0/uc?id=${fileId}&export=download&confirm=t`,
+                    `https://drive.usercontent.google.com/download?id=${fileId}&export=download&confirm=t`,
+                    `https://drive.google.com/uc?id=${fileId}&export=download`
+                ];
 
-        function seekAudio() {
-            const time = parseFloat(progressBar.value);
-            if (playbackMode === 'buffer') {
-                if (isPlaying) {
-                    source.stop();
-                    pausedAt = time;
-                    playBufferSource();
-                } else {
-                    pausedAt = time;
-                    updateProgressUI(time);
+                audioElement = new Audio();
+                audioElement.crossOrigin = "anonymous";
+
+                // Try each direct URL pattern
+                let loadSuccess = false;
+                for (const url of directUrls) {
+                    try {
+                        console.log(`Testing Drive URL: ${url}`);
+                        audioElement.src = url;
+
+                        // Setup events before loading
+                        const loadPromise = new Promise((resolve, reject) => {
+                            const timeout = setTimeout(() => reject(new Error('Timeout')), 5000);
+
+                            audioElement.addEventListener('loadedmetadata', () => {
+                                clearTimeout(timeout);
+                                resolve();
+                            }, { once: true });
+
+                            audioElement.addEventListener('error', () => {
+                                clearTimeout(timeout);
+                                reject(new Error('Load failed'));
+                            }, { once: true });
+                        });
+
+                        audioElement.load();
+                        await loadPromise;
+
+                        // If we get here, it loaded successfully
+                        loadSuccess = true;
+                        console.log('Drive URL loaded successfully!');
+
+                        // Setup remaining events
+                        audioElement.addEventListener('timeupdate', () => {
+                            if (playbackMode === 'stream') updateProgressUI(audioElement.currentTime);
+                        });
+
+                        audioElement.addEventListener('ended', () => {
+                            isPlaying = false;
+                            updatePlayButton();
+                        });
+
+                        durationEl.innerText = formatTime(audioElement.duration);
+                        progressBar.max = audioElement.duration;
+
+                        // Initialize Context for Visualizer
+                        if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        setupAudioGraph();
+
+                        finishLoading();
+                        break; // Success!
+
+                    } catch (e) {
+                        console.warn(`Drive URL failed: ${url}`, e);
+                        continue;
+                    }
                 }
-            } else {
-                audioElement.currentTime = time;
-                updateProgressUI(time);
-            }
-        }
 
-        function skip(seconds) {
-            let current, duration;
-
-            if (playbackMode === 'buffer') {
-                if (!audioBuffer) return;
-                current = isPlaying ? (audioContext.currentTime - startTime) : pausedAt;
-                duration = audioBuffer.duration;
-            } else {
-                if (!audioElement) return;
-                current = audioElement.currentTime;
-                duration = audioElement.duration;
-            }
-
-            let target = current + seconds;
-            target = Math.max(0, Math.min(target, duration));
-
-            if (playbackMode === 'buffer') {
-                if (isPlaying) {
-                    source.stop();
-                    pausedAt = target;
-                    playBufferSource();
-                } else {
-                    pausedAt = target;
-                    updateProgressUI(target);
+                if (!loadSuccess) {
+                    throw new Error("Google Drive is blocking this file. Please ensure it's shared as 'Anyone with the link' or try a smaller file.");
                 }
-            } else {
-                audioElement.currentTime = target;
-                if (!isPlaying) updateProgressUI(target); // If playing, timeupdate handles it
             }
-        }
 
-        function updateLoop() {
-            if (!isPlaying) return;
-            if (playbackMode === 'buffer') {
-                const current = audioContext.currentTime - startTime;
-                updateProgressUI(current);
-                if (current < audioBuffer.duration) requestAnimationFrame(updateLoop);
-            } else {
-                // Stream mode updates via event listener, just keep loop for visualizer
-                requestAnimationFrame(updateLoop);
-            }
-        }
-
-        function updateProgressUI(time) {
-            progressBar.value = time;
-            currentTimeEl.innerText = formatTime(time);
-            const duration = playbackMode === 'buffer' ? audioBuffer.duration : (audioElement ? audioElement.duration : 1);
-            const pct = (time / duration) * 100;
-            progressFill.style.width = `${pct}%`;
-        }
-
-        function toggleBass() {
-            isBassBoosted = !isBassBoosted;
-            if (bassFilter) {
-                const currentTime = audioContext.currentTime;
-                // Safe ramp
-                try {
-                    bassFilter.gain.linearRampToValueAtTime(isBassBoosted ? 15 : 0, currentTime + 0.2);
-                } catch (e) {
+            function setupAudioGraph() {
+                // Common node setup
+                if (!analyser) {
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    analyser.smoothingTimeConstant = 0.85;
+                }
+                if (!bassFilter) {
+                    bassFilter = audioContext.createBiquadFilter();
+                    bassFilter.type = 'lowshelf';
+                    bassFilter.frequency.value = 200;
                     bassFilter.gain.value = isBassBoosted ? 15 : 0;
                 }
+
+                // Connect logic depends on mode during play, but we prep nodes here
             }
 
-            if (isBassBoosted) {
-                bassBtn.classList.add('clay-button-active', 'text-white');
-                bassBtn.classList.remove('bg-white/5', 'text-white/60');
-                bassStatus.classList.remove('bg-gray-500');
-                bassStatus.classList.add('bg-green-400', 'shadow-[0_0_8px_#4ade80]');
-            } else {
-                bassBtn.classList.remove('clay-button-active', 'text-white');
-                bassBtn.classList.add('bg-white/5', 'text-white/60');
-                bassStatus.classList.add('bg-gray-500');
-                bassStatus.classList.remove('bg-green-400', 'shadow-[0_0_8px_#4ade80]');
+            function finishLoading() {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+
+                if (isEmbedMode) {
+                    document.getElementById('mainCard').style.display = 'none';
+                }
+
+                playerSection.classList.remove('hidden');
+                void playerSection.offsetWidth;
+                playerSection.classList.remove('translate-y-12', 'opacity-0');
+
+                if (!isEmbedMode) {
+                    togglePlay();
+                } else {
+                    playBtn.classList.add('animate-pulse');
+                }
             }
-        }
 
-        function updatePlayButton() {
-            playBtn.innerHTML = isPlaying
-                ? '<i class="fa-solid fa-pause text-2xl md:text-4xl"></i>'
-                : '<i class="fa-solid fa-play text-2xl md:text-4xl ml-1 md:ml-2"></i>';
-        }
+            // --- UNIFIED CONTROLS ---
 
-        function drawMirrorVisualizer() {
-            if (!analyser) return;
+            async function togglePlay() {
+                if (audioContext && audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
 
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
+                if (isPlaying) {
+                    // PAUSE
+                    if (playbackMode === 'buffer') {
+                        if (source) { try { source.stop(); } catch (e) { } }
+                        pausedAt = audioContext.currentTime - startTime;
+                    } else {
+                        audioElement.pause();
+                    }
 
-            visualizerCanvas.width = visualizerCanvas.offsetWidth;
-            visualizerCanvas.height = visualizerCanvas.offsetHeight;
+                    isPlaying = false;
+                    cancelAnimationFrame(animationId);
+                } else {
+                    // PLAY
+                    isPlaying = true;
 
-            const width = visualizerCanvas.width;
-            const height = visualizerCanvas.height;
-            const barWidth = (width / bufferLength) * 1.5;
-            const centerX = width / 2;
+                    if (playbackMode === 'buffer') {
+                        playBufferSource();
+                    } else {
+                        // Stream Mode Visualizer Hook
+                        if (!mediaElementSource && audioElement) {
+                            try {
+                                mediaElementSource = audioContext.createMediaElementSource(audioElement);
+                                mediaElementSource.connect(bassFilter);
+                                bassFilter.connect(analyser);
+                                analyser.connect(audioContext.destination);
+                            } catch (e) { console.warn("Visualizer restricted due to CORS", e); }
+                        }
+                        audioElement.play();
+                    }
 
-            // Auto-fallback for silent visualizer (Fake Mode)
-            let silentFrames = 0;
+                    drawMirrorVisualizer();
+                    requestAnimationFrame(updateLoop);
+                    playBtn.classList.remove('animate-pulse');
+                }
+                updatePlayButton();
+            }
 
-            function renderFrame() {
+            function playBufferSource() {
+                source = audioContext.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(bassFilter);
+                bassFilter.connect(analyser);
+                analyser.connect(audioContext.destination);
+
+                source.start(0, pausedAt);
+                startTime = audioContext.currentTime - pausedAt;
+
+                source.onended = () => {
+                    if (isPlaying && (audioContext.currentTime - startTime) >= audioBuffer.duration - 0.1) {
+                        isPlaying = false;
+                        pausedAt = 0;
+                        updatePlayButton();
+                        cancelAnimationFrame(animationId);
+                    }
+                };
+            }
+
+            function stopAudio() {
+                if (playbackMode === 'buffer') {
+                    if (source) { try { source.stop(); } catch (e) { } }
+                } else {
+                    if (audioElement) { audioElement.pause(); audioElement.currentTime = 0; }
+                }
+                isPlaying = false;
+                pausedAt = 0;
+                cancelAnimationFrame(animationId);
+                updatePlayButton();
+            }
+
+            function seekAudio() {
+                const time = parseFloat(progressBar.value);
+                if (playbackMode === 'buffer') {
+                    if (isPlaying) {
+                        source.stop();
+                        pausedAt = time;
+                        playBufferSource();
+                    } else {
+                        pausedAt = time;
+                        updateProgressUI(time);
+                    }
+                } else {
+                    audioElement.currentTime = time;
+                    updateProgressUI(time);
+                }
+            }
+
+            function skip(seconds) {
+                let current, duration;
+
+                if (playbackMode === 'buffer') {
+                    if (!audioBuffer) return;
+                    current = isPlaying ? (audioContext.currentTime - startTime) : pausedAt;
+                    duration = audioBuffer.duration;
+                } else {
+                    if (!audioElement) return;
+                    current = audioElement.currentTime;
+                    duration = audioElement.duration;
+                }
+
+                let target = current + seconds;
+                target = Math.max(0, Math.min(target, duration));
+
+                if (playbackMode === 'buffer') {
+                    if (isPlaying) {
+                        source.stop();
+                        pausedAt = target;
+                        playBufferSource();
+                    } else {
+                        pausedAt = target;
+                        updateProgressUI(target);
+                    }
+                } else {
+                    audioElement.currentTime = target;
+                    if (!isPlaying) updateProgressUI(target); // If playing, timeupdate handles it
+                }
+            }
+
+            function updateLoop() {
                 if (!isPlaying) return;
+                if (playbackMode === 'buffer') {
+                    const current = audioContext.currentTime - startTime;
+                    updateProgressUI(current);
+                    if (current < audioBuffer.duration) requestAnimationFrame(updateLoop);
+                } else {
+                    // Stream mode updates via event listener, just keep loop for visualizer
+                    requestAnimationFrame(updateLoop);
+                }
+            }
 
-                animationId = requestAnimationFrame(renderFrame);
-                analyser.getByteFrequencyData(dataArray);
+            function updateProgressUI(time) {
+                progressBar.value = time;
+                currentTimeEl.innerText = formatTime(time);
+                const duration = playbackMode === 'buffer' ? audioBuffer.duration : (audioElement ? audioElement.duration : 1);
+                const pct = (time / duration) * 100;
+                progressFill.style.width = `${pct}%`;
+            }
 
-                // Check for silence (fake visualizer logic)
-                let sum = 0;
-                for (let k = 0; k < 10; k++) sum += dataArray[k];
-                if (sum === 0 && playbackMode === 'stream') {
-                    // Generate fake data for "Radio Mode" look
-                    for (let i = 0; i < bufferLength; i++) {
-                        dataArray[i] = Math.max(10, Math.random() * 100 * (1 - i / bufferLength));
+            function toggleBass() {
+                isBassBoosted = !isBassBoosted;
+                if (bassFilter) {
+                    const currentTime = audioContext.currentTime;
+                    // Safe ramp
+                    try {
+                        bassFilter.gain.linearRampToValueAtTime(isBassBoosted ? 15 : 0, currentTime + 0.2);
+                    } catch (e) {
+                        bassFilter.gain.value = isBassBoosted ? 15 : 0;
                     }
                 }
 
-                canvasCtx.clearRect(0, 0, width, height);
-
-                for (let i = 0; i < bufferLength; i++) {
-                    const barHeight = (dataArray[i] / 255) * height * 0.9;
-
-                    const gradient = canvasCtx.createLinearGradient(0, height / 2 - barHeight / 2, 0, height / 2 + barHeight / 2);
-                    gradient.addColorStop(0, '#818cf8');
-                    gradient.addColorStop(0.5, '#e879f9');
-                    gradient.addColorStop(1, '#818cf8');
-
-                    canvasCtx.fillStyle = gradient;
-
-                    const xR = centerX + (i * barWidth);
-                    const xL = centerX - ((i + 1) * barWidth);
-                    const y = (height - barHeight) / 2;
-
-                    canvasCtx.beginPath();
-                    canvasCtx.roundRect(xR, y, barWidth - 2, barHeight, 50);
-                    canvasCtx.fill();
-
-                    canvasCtx.beginPath();
-                    canvasCtx.roundRect(xL, y, barWidth - 2, barHeight, 50);
-                    canvasCtx.fill();
+                if (isBassBoosted) {
+                    bassBtn.classList.add('clay-button-active', 'text-white');
+                    bassBtn.classList.remove('bg-white/5', 'text-white/40');
+                    bassStatus.classList.remove('bg-white/20');
+                    bassStatus.classList.add('bg-green-400', 'shadow-[0_0_8px_#4ade80]');
+                } else {
+                    bassBtn.classList.remove('clay-button-active', 'text-white');
+                    bassBtn.classList.add('bg-white/5', 'text-white/40');
+                    bassStatus.classList.add('bg-white/20');
+                    bassStatus.classList.remove('bg-green-400', 'shadow-[0_0_8px_#4ade80]');
                 }
             }
-            renderFrame();
-        }
 
-        function downloadAudio() {
-            if (playbackMode === 'stream' && audioElement) {
-                window.open(audioElement.src, '_blank');
-            } else if (currentBlobUrl) {
-                const a = document.createElement('a');
-                a.href = currentBlobUrl;
-                a.download = currentFileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+            function updatePlayButton() {
+                playBtn.innerHTML = isPlaying
+                    ? '<i class="fa-solid fa-pause text-2xl md:text-4xl"></i>'
+                    : '<i class="fa-solid fa-play text-2xl md:text-4xl ml-1 md:ml-2"></i>';
             }
-        }
 
-        function formatTime(s) {
-            if (!s || isNaN(s)) return "0:00";
-            const m = Math.floor(s / 60);
-            const sec = Math.floor(s % 60);
-            return `${m}:${sec < 10 ? '0' : ''}${sec}`;
-        }
+            function drawMirrorVisualizer() {
+                if (!analyser) return;
 
-        function showError(msg) {
-            errorMsg.querySelector('span').innerText = msg;
-            errorMsg.classList.remove('hidden');
-        }
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
 
-        window.addEventListener('resize', () => {
-            if (visualizerCanvas && isPlaying) {
                 visualizerCanvas.width = visualizerCanvas.offsetWidth;
                 visualizerCanvas.height = visualizerCanvas.offsetHeight;
-            }
-        });
 
-    </script>
+                const width = visualizerCanvas.width;
+                const height = visualizerCanvas.height;
+                const barWidth = (width / bufferLength) * 1.5;
+                const centerX = width / 2;
+
+                // Auto-fallback for silent visualizer (Fake Mode)
+                let silentFrames = 0;
+
+                function renderFrame() {
+                    if (!isPlaying) return;
+
+                    animationId = requestAnimationFrame(renderFrame);
+                    analyser.getByteFrequencyData(dataArray);
+
+                    // Check for silence (fake visualizer logic)
+                    let sum = 0;
+                    for (let k = 0; k < 10; k++) sum += dataArray[k];
+                    if (sum === 0 && playbackMode === 'stream') {
+                        // Generate fake data for "Radio Mode" look
+                        for (let i = 0; i < bufferLength; i++) {
+                            dataArray[i] = Math.max(10, Math.random() * 100 * (1 - i / bufferLength));
+                        }
+                    }
+
+                    canvasCtx.clearRect(0, 0, width, height);
+
+                    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#818cf8';
+                    const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim() || '#e879f9';
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        const barHeight = (dataArray[i] / 255) * height * 0.9;
+
+                        const gradient = canvasCtx.createLinearGradient(0, height / 2 - barHeight / 2, 0, height / 2 + barHeight / 2);
+                        gradient.addColorStop(0, primaryColor);
+                        gradient.addColorStop(0.5, secondaryColor);
+                        gradient.addColorStop(1, primaryColor);
+
+                        canvasCtx.fillStyle = gradient;
+
+                        const xR = centerX + (i * barWidth);
+                        const xL = centerX - ((i + 1) * barWidth);
+                        const y = (height - barHeight) / 2;
+
+                        canvasCtx.beginPath();
+                        canvasCtx.roundRect(xR, y, barWidth - 2, barHeight, 50);
+                        canvasCtx.fill();
+
+                        canvasCtx.beginPath();
+                        canvasCtx.roundRect(xL, y, barWidth - 2, barHeight, 50);
+                        canvasCtx.fill();
+                    }
+                }
+                renderFrame();
+            }
+
+            function downloadAudio() {
+                if (playbackMode === 'stream' && audioElement) {
+                    window.open(audioElement.src, '_blank');
+                } else if (currentBlobUrl) {
+                    const a = document.createElement('a');
+                    a.href = currentBlobUrl;
+                    a.download = currentFileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+            }
+
+            function formatTime(s) {
+                if (!s || isNaN(s)) return "0:00";
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+            }
+
+            function showError(msg) {
+                errorMsg.querySelector('span').innerText = msg;
+                errorMsg.classList.remove('hidden');
+            }
+
+            window.addEventListener('resize', () => {
+                if (visualizerCanvas && isPlaying) {
+                    visualizerCanvas.width = visualizerCanvas.offsetWidth;
+                    visualizerCanvas.height = visualizerCanvas.offsetHeight;
+                }
+            });
+
+        </script>
 </body>
 
 </html>
